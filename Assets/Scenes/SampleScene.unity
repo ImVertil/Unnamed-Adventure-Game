@@ -900,9 +900,17 @@ MonoBehaviour:
   _sprintSpeed: 8
   _smoothTime: 0.2
   _controller: {fileID: 213551153}
+  _animator: {fileID: 213551159}
+  _animationSmoothTime: 0.2
 --- !u!4 &213551158 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4957605393579145646, guid: 4f46098734d87e24490aef9267915ad2,
+    type: 3}
+  m_PrefabInstance: {fileID: 213551150}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &213551159 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 4957605393579145647, guid: 4f46098734d87e24490aef9267915ad2,
     type: 3}
   m_PrefabInstance: {fileID: 213551150}
   m_PrefabAsset: {fileID: 0}
