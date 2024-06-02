@@ -8,50 +8,54 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float _speed = 5f;
     [SerializeField] private float _sprintSpeed = 8f;
     [SerializeField] private float _smoothTime = 0.2f;
+    [SerializeField] private float _rotationSmoothTime = 0.2f;
     [SerializeField] private CharacterController _controller;
 
+    private Vector2 _inputVector;
     private Vector2 _currentVelocity;
     private Vector2 _currentMovementVector;
 
+    private float _currentRotationVelocity;
+
     [SerializeField] private Animator _animator;
-    [SerializeField] private float _animationSmoothTime = 0.2f;
+    private int _animatorSpeedParamId;
     private string _currentState;
 
 
     private void Start()
     {
+        _animatorSpeedParamId = Animator.StringToHash("Speed");
         ChangeAnimationState(_currentState);
     }
 
     private void Update()
     {
+        _inputVector = PlayerInputHandler.Instance.Move;
         HandleMovement();
-        HandleCameraMovement();
         HandleAnimation();
     }
 
     private void HandleMovement()
     {
-        Vector2 inputVector = PlayerInputHandler.Instance.Move;
-        _currentMovementVector = Vector2.SmoothDamp(_currentMovementVector, inputVector * (PlayerInputHandler.Instance.Sprint ? _sprintSpeed : _speed), ref _currentVelocity, _smoothTime);
+        if(_inputVector != Vector2.zero)
+        {
+            float rotationAngle = Mathf.Atan2(_inputVector.x, _inputVector.y) * Mathf.Rad2Deg;
+            float smoothAngle = Mathf.SmoothDampAngle(transform.eulerAngles.y, rotationAngle, ref _currentRotationVelocity, _rotationSmoothTime);
+            transform.rotation = Quaternion.Euler(0f, smoothAngle, 0f);
+        }
+
+        _currentMovementVector = Vector2.SmoothDamp(_currentMovementVector, _inputVector * (PlayerInputHandler.Instance.Sprint ? _sprintSpeed : _speed), ref _currentVelocity, _smoothTime);
         Vector3 movementVector = new Vector3(_currentMovementVector.x, 0f, _currentMovementVector.y);
 
-        //_controller.Move(movementVector * (PlayerInputHandler.Instance.Sprint ? _sprintSpeed : _speed) * Time.deltaTime);
         _controller.Move(movementVector * Time.deltaTime);
-
-    }
-
-    private void HandleCameraMovement()
-    {
-
     }
 
     private void HandleAnimation()
     {
         // figure out animation smoothing/blend trees
+        float playerVelocity = Mathf.Max(Mathf.Abs(_controller.velocity.x), Mathf.Abs(_controller.velocity.z));
+        _animator.SetFloat(_animatorSpeedParamId, playerVelocity);
 
-        Vector2 inputVector = PlayerInputHandler.Instance.Move;
-        _animator.SetFloat("Speed", _controller.velocity.z);
         //Debug.Log(_controller.velocity.z);
 
         /*if(inputVector == Vector2.zero)
