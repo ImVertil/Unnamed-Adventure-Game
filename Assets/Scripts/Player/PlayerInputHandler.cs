@@ -54,13 +54,7 @@ public class PlayerInputHandler : MonoBehaviour
         dashAction.canceled += context => Dash = context.ReadValueAsButton();
     }
 
-    private void OnEnable()
-    {
-        _map.Enable();
-    }
+    private void OnEnable() => _map.Enable();
 
-    private void OnDisable()
-    {
-        _map.Disable();
-    }
+    private void OnDisable() => _map.Disable();
 }

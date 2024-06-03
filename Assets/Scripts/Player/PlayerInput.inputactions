@@ -1,5 +1,5 @@
 {
-    "name": "Player Input",
+    "name": "PlayerInput",
     "maps": [
         {
             "name": "Player",
@@ -92,7 +92,7 @@
                 {
                     "name": "",
                     "id": "76707df2-e3c8-4107-81b2-6106f647c18c",
-                    "path": "<Keyboard>/alt",
+                    "path": "<Keyboard>/leftAlt",
                     "interactions": "",
                     "processors": "",
                     "groups": "KeyboardMouse",
