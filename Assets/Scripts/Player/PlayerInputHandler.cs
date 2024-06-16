@@ -17,7 +17,7 @@ public class PlayerInputHandler : MonoBehaviour
 
     private InputAction moveAction;
     private InputAction sprintAction;
-    private InputAction dashAction;
+    public InputAction dashAction;
 
     // ===== Something ===== //
 

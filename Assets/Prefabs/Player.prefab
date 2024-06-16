@@ -1025,13 +1025,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b0449c7c9a85e645b9b8a10527f2a49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _speed: 4
-  _sprintSpeed: 6
+  _speed: 4.5
+  _sprintSpeed: 5.75
   _dashSpeed: 7
   _smoothTime: 0.15
   _dashSmoothTime: 0
   _rotationSmoothTime: 0.15
   _controller: {fileID: 4884196935888739289}
+  _test: 0.3
   _animator: {fileID: 3142773104689073958}
 --- !u!1 &1497292152771249737
 GameObject:
