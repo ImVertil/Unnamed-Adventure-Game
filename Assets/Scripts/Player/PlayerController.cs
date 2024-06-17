@@ -15,9 +15,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float _rotationSmoothTime = 0.15f;
     [SerializeField] private CharacterController _controller;
 
-    // TODO: change this later after getting dash anim, not roll anim
     private float _dashCooldownTime = 2f;
-    private bool _dashOnCooldown = false;
+    public bool dashOnCooldown { get; private set; } = false;
+    public bool isDashing { get; private set; } = false;
 
     private Vector2 _inputVector;
     private Vector2 _currentVelocity;
@@ -28,60 +28,91 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Animator _animator;
     private int _animatorSpeedParamId;
     private int _animatorDashParamId;
+
+    [Header("States")]
+    private PlayerState _currentState;
+    public PlayerIdleState IdleState = new PlayerIdleState();
+    public PlayerMovingState MovingState = new PlayerMovingState();
+    public PlayerDashingState DashingState = new PlayerDashingState();
     
 
     private void Start()
     {
+        _currentState = IdleState;
+        _currentState.EnterState(this);
+
         _animatorSpeedParamId = Animator.StringToHash("Speed");
         _animatorDashParamId = Animator.StringToHash("IsDashing");
-        PlayerInputHandler.Instance.dashAction.performed += Dash;
     }
 
 
     private void Update()
     {
         _inputVector = PlayerInputHandler.Instance.Move;
-        HandleMovement();
+        _currentState.UpdateState(this);
     }
 
-    private void HandleMovement()
+    public void Move()
     {
-        // TODO: Replace if statements readability with player states
-        if (_inputVector != Vector2.zero && !_animator.GetBool(_animatorDashParamId))
+        if(_inputVector != Vector2.zero)
         {
             float rotationAngle = Mathf.Atan2(_inputVector.x, _inputVector.y) * Mathf.Rad2Deg;
             float smoothAngle = Mathf.SmoothDampAngle(transform.eulerAngles.y, rotationAngle, ref _currentRotationVelocity, _rotationSmoothTime);
             transform.rotation = Quaternion.Euler(0f, smoothAngle, 0f);
         }
 
-        if (_animator.GetBool(_animatorDashParamId))
+        if (_controller.velocity.magnitude >= _dashSpeed - 0.01f)
         {
-            Vector2 dashDirection = new Vector2(transform.forward.x, transform.forward.z);
-            _currentMovementVector = Vector2.SmoothDamp(_currentMovementVector, dashDirection * _dashSpeed, ref _currentVelocity, _dashSmoothTime);
+            _currentMovementVector = _inputVector * (PlayerInputHandler.Instance.Sprint ? _sprintSpeed : _speed);
         }
         else
         {
-            if (_controller.velocity.magnitude >= _dashSpeed - 0.01f)
-            {
-                _currentMovementVector = _inputVector * (PlayerInputHandler.Instance.Sprint ? _sprintSpeed : _speed);
-            }
-            else
-            {
-                _currentMovementVector = Vector2.SmoothDamp(_currentMovementVector, _inputVector * (PlayerInputHandler.Instance.Sprint ? _sprintSpeed : _speed), ref _currentVelocity, _smoothTime);
-            }
+            _currentMovementVector = Vector2.SmoothDamp(_currentMovementVector, _inputVector * (PlayerInputHandler.Instance.Sprint ? _sprintSpeed : _speed), ref _currentVelocity, _smoothTime);
         }
 
         Vector3 movementVector = new Vector3(_currentMovementVector.x, 0f, _currentMovementVector.y);
         _controller.Move(movementVector * Time.deltaTime);
 
-        _animator.SetFloat(_animatorSpeedParamId, _controller.velocity.magnitude);
+        SetAnimatorSpeedParam(_controller.velocity.magnitude);
     }
-    private void Dash(InputAction.CallbackContext context)
+
+    public void Dash()
     {
-        if (_animator.GetBool(_animatorSpeedParamId) || _dashOnCooldown)
-            return;
-        
-        StartCoroutine(HandleDash());
+        if (!GetDashingStatus() && !dashOnCooldown)
+        {
+            StartCoroutine(HandleDash());
+        }
+
+        Vector2 dashDirection = new Vector2(transform.forward.x, transform.forward.z);
+        _currentMovementVector = Vector2.SmoothDamp(_currentMovementVector, dashDirection * _dashSpeed, ref _currentVelocity, _dashSmoothTime);
+
+        Vector3 movementVector = new Vector3(_currentMovementVector.x, 0f, _currentMovementVector.y);
+        _controller.Move(movementVector * Time.deltaTime);
+
+        SetAnimatorSpeedParam(_controller.velocity.magnitude);
+    }
+
+    public void ChangeState(PlayerState nextState)
+    {
+        //_currentState.ExitState(this);
+        nextState.EnterState(this);
+        _currentState = nextState;
+        //_currentState.EnterState(this);
+    }
+
+    public float GetPlayerSpeed()
+    {
+        return _controller.velocity.magnitude;
+    }
+
+    public bool GetDashingStatus()
+    {
+        return _animator.GetBool(_animatorDashParamId);
+    }
+
+    public void SetAnimatorSpeedParam(float val)
+    {
+        _animator.SetFloat(_animatorSpeedParamId, val);
     }
 
     private IEnumerator HandleDash()
@@ -97,10 +128,11 @@ public class PlayerController : MonoBehaviour
         StartCoroutine(PutDashOnCooldown());
     }
     
+    // temp
     private IEnumerator PutDashOnCooldown()
     {
-        _dashOnCooldown = true;
+        dashOnCooldown = true;
         yield return new WaitForSeconds(_dashCooldownTime);
-        _dashOnCooldown = false;
+        dashOnCooldown = false;
     }
 }
