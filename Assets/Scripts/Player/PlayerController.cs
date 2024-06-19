@@ -43,6 +43,8 @@ public class PlayerController : MonoBehaviour
 
         _animatorSpeedParamId = Animator.StringToHash("Speed");
         _animatorDashParamId = Animator.StringToHash("IsDashing");
+
+        PlayerInputHandler.Instance.testAction.performed += Test;
     }
 
 
@@ -50,6 +52,12 @@ public class PlayerController : MonoBehaviour
     {
         _inputVector = PlayerInputHandler.Instance.Move;
         _currentState.UpdateState(this);
+    }
+
+    private void Test(InputAction.CallbackContext context)
+    {
+        Debug.Log("working");
+        _animator.Play("MeleeAttack_TwoHanded", 2);
     }
 
     public void Move()

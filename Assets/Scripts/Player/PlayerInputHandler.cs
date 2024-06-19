@@ -19,8 +19,11 @@ public class PlayerInputHandler : MonoBehaviour
     private InputAction sprintAction;
     public InputAction dashAction;
 
-    // ===== Something ===== //
+    // ===== Attacks ===== //
+    public InputAction attackAction;
 
+    // ===== Test ===== //
+    public InputAction testAction;
 
     private void Awake()
     {
@@ -38,6 +41,10 @@ public class PlayerInputHandler : MonoBehaviour
         moveAction = _map.FindAction("Movement");
         sprintAction = _map.FindAction("Sprint");
         dashAction = _map.FindAction("Dash");
+
+        //attackAction = _map.FindAction("Attack");
+
+        testAction = _map.FindAction("TestAction");
 
         RegisterInputActions();
     }
