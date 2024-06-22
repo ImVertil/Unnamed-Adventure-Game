@@ -42,6 +42,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "TestAction2",
+                    "type": "Button",
+                    "id": "7c1210a8-4e86-42f6-a801-5c9ecee87f6a",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "Attack",
                     "type": "Button",
                     "id": "a84d96bb-0412-4e92-b46e-1db15f791b98",
@@ -132,11 +141,22 @@
                 {
                     "name": "",
                     "id": "034fec70-7b2e-4c85-b009-4761bac8ab9a",
-                    "path": "<Keyboard>/space",
+                    "path": "<Keyboard>/v",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
                     "action": "TestAction",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "cea41429-1f1c-4ee9-b54e-f3350e863e77",
+                    "path": "<Keyboard>/b",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "TestAction2",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

@@ -44,7 +44,9 @@ public class PlayerController : MonoBehaviour
         _animatorSpeedParamId = Animator.StringToHash("Speed");
         _animatorDashParamId = Animator.StringToHash("IsDashing");
 
-        PlayerInputHandler.Instance.testAction.performed += Test;
+        PlayerInputHandler.Instance.attackAction.performed += Test;
+        PlayerInputHandler.Instance.testAction.performed += Test2;
+        PlayerInputHandler.Instance.testAction2.performed += Test3;
     }
 
 
@@ -56,8 +58,21 @@ public class PlayerController : MonoBehaviour
 
     private void Test(InputAction.CallbackContext context)
     {
-        Debug.Log("working");
-        _animator.Play("MeleeAttack_TwoHanded", 2);
+        Debug.Log("attack");
+        _animator.Play("MeleeAttack_OneHanded", 2);
+        //_animator.SetTrigger("Attack");
+    }
+
+    private void Test2(InputAction.CallbackContext context)
+    {
+        Debug.Log("staff equip");
+        _animator.SetTrigger("StaffEquip");
+    }
+
+    private void Test3(InputAction.CallbackContext context)
+    {
+        Debug.Log("unequip");
+        _animator.SetTrigger("Unequip");
     }
 
     public void Move()

@@ -74,6 +74,8 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 
-# Game assets (replace with folder later)
+# Game assets
 /[Aa]ssets/[Bb]link/*
 /[Aa]ssets/Blink.meta
+/[Aa]ssets/ExplosiveLLC/*
+/[Aa]ssets/ExplosiveLLC.meta
