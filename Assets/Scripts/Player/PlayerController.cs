@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -28,13 +29,15 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Animator _animator;
     private int _animatorSpeedParamId;
     private int _animatorDashParamId;
+    private int _animatorPosXParamId;
+    private int _animatorPosYParamId;
 
     [Header("States")]
     private PlayerState _currentState;
     public PlayerIdleState IdleState = new PlayerIdleState();
     public PlayerMovingState MovingState = new PlayerMovingState();
     public PlayerDashingState DashingState = new PlayerDashingState();
-    
+
 
     private void Start()
     {
@@ -43,6 +46,8 @@ public class PlayerController : MonoBehaviour
 
         _animatorSpeedParamId = Animator.StringToHash("Speed");
         _animatorDashParamId = Animator.StringToHash("IsDashing");
+        _animatorPosXParamId = Animator.StringToHash("PosX");
+        _animatorPosYParamId = Animator.StringToHash("PosY");
 
         PlayerInputHandler.Instance.attackAction.performed += Test;
         PlayerInputHandler.Instance.testAction.performed += Test2;
@@ -65,8 +70,8 @@ public class PlayerController : MonoBehaviour
 
     private void Test2(InputAction.CallbackContext context)
     {
-        Debug.Log("staff equip");
-        _animator.SetTrigger("StaffEquip");
+        Debug.Log("sword equip");
+        _animator.SetTrigger("SwordEquip");
     }
 
     private void Test3(InputAction.CallbackContext context)
@@ -97,6 +102,33 @@ public class PlayerController : MonoBehaviour
         _controller.Move(movementVector * Time.deltaTime);
 
         SetAnimatorSpeedParam(_controller.velocity.magnitude);
+    }
+
+    public void CombatMove()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(PlayerInputHandler.Instance.Mouse);
+        Plane groundPlane = new Plane(Vector3.up, new Vector3(0f, transform.position.y, 0f));
+        Vector3 lookDirection = Vector3.zero;
+
+        if (groundPlane.Raycast(ray, out float distanceToGround))
+        {
+            Vector3 targetPos = ray.GetPoint(distanceToGround);
+            lookDirection = (targetPos - transform.position).normalized;
+            float rotationAngle = Mathf.Atan2(lookDirection.x, lookDirection.z) * Mathf.Rad2Deg;
+            float smoothAngle = Mathf.SmoothDampAngle(transform.eulerAngles.y, rotationAngle, ref _currentRotationVelocity, _rotationSmoothTime);
+            transform.rotation = Quaternion.Euler(0f, smoothAngle, 0f);
+            Debug.DrawLine(transform.position, transform.position + lookDirection, Color.red);
+        }
+
+        _currentMovementVector = Vector2.SmoothDamp(_currentMovementVector, _inputVector, ref _currentVelocity, _smoothTime);
+        Vector3 movementVector = new Vector3(_currentMovementVector.x, 0f, _currentMovementVector.y);
+        _controller.Move(movementVector * _speed * Time.deltaTime);
+
+        Vector3 cross = Vector3.Cross(Vector3.up, lookDirection);
+        float dotX = Vector3.Dot(cross, movementVector);
+        float dotY = Vector3.Dot(lookDirection, movementVector);
+        _animator.SetFloat(_animatorPosXParamId, dotX);
+        _animator.SetFloat(_animatorPosYParamId, dotY);
     }
 
     public void Dash()

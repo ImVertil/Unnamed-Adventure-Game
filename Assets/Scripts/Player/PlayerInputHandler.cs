@@ -19,6 +19,10 @@ public class PlayerInputHandler : MonoBehaviour
     private InputAction sprintAction;
     public InputAction dashAction;
 
+    // ===== Mouse ===== //
+    public Vector2 Mouse { get; private set; }
+    private InputAction mouseAction;
+
     // ===== Attacks ===== //
     public InputAction attackAction;
 
@@ -43,6 +47,8 @@ public class PlayerInputHandler : MonoBehaviour
         sprintAction = _map.FindAction("Sprint");
         dashAction = _map.FindAction("Dash");
 
+        mouseAction = _map.FindAction("Mouse");
+
         attackAction = _map.FindAction("Attack");
 
         testAction = _map.FindAction("TestAction");
@@ -61,6 +67,8 @@ public class PlayerInputHandler : MonoBehaviour
 
         dashAction.performed += context => Dash = context.ReadValueAsButton();
         dashAction.canceled += context => Dash = context.ReadValueAsButton();
+
+        mouseAction.performed += context => Mouse = context.ReadValue<Vector2>();
     }
 
     private void OnEnable() => _map.Enable();
