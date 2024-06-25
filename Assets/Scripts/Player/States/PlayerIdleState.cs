@@ -7,6 +7,7 @@ public class PlayerIdleState : PlayerState
     {
         Debug.Log("Entered Idle state");
         player.SetAnimatorSpeedParam(0f);
+        player.SetAnimatorPosParam(0f, 0f);
     }
 
     public override void UpdateState(PlayerController player)

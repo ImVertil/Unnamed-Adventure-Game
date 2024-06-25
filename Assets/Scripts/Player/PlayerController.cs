@@ -8,9 +8,10 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour
 {
     [Header("Movement")]
-    [SerializeField] private float _speed = 4.5f;
-    [SerializeField] private float _sprintSpeed = 5.75f;
-    [SerializeField] private float _dashSpeed = 7f;
+    [SerializeField] private float _speed = 4;
+    [SerializeField] private float _combatSpeed = 3f;
+    [SerializeField] private float _sprintSpeed = 5.5f;
+    [SerializeField] private float _dashSpeed = 6.5f;
     [SerializeField] private float _smoothTime = 0.15f;
     [SerializeField] private float _dashSmoothTime = 0f;
     [SerializeField] private float _rotationSmoothTime = 0.15f;
@@ -82,6 +83,9 @@ public class PlayerController : MonoBehaviour
 
     public void Move()
     {
+        CombatMove();
+        return;
+
         if(_inputVector != Vector2.zero)
         {
             float rotationAngle = Mathf.Atan2(_inputVector.x, _inputVector.y) * Mathf.Rad2Deg;
@@ -122,7 +126,7 @@ public class PlayerController : MonoBehaviour
 
         _currentMovementVector = Vector2.SmoothDamp(_currentMovementVector, _inputVector, ref _currentVelocity, _smoothTime);
         Vector3 movementVector = new Vector3(_currentMovementVector.x, 0f, _currentMovementVector.y);
-        _controller.Move(movementVector * _speed * Time.deltaTime);
+        _controller.Move(movementVector * _combatSpeed * Time.deltaTime);
 
         Vector3 cross = Vector3.Cross(Vector3.up, lookDirection);
         float dotX = Vector3.Dot(cross, movementVector);
@@ -168,6 +172,12 @@ public class PlayerController : MonoBehaviour
     public void SetAnimatorSpeedParam(float val)
     {
         _animator.SetFloat(_animatorSpeedParamId, val);
+    }
+
+    public void SetAnimatorPosParam(float x, float y)
+    {
+        _animator.SetFloat(_animatorPosXParamId, x);
+        _animator.SetFloat(_animatorPosYParamId, y);
     }
 
     private IEnumerator HandleDash()
