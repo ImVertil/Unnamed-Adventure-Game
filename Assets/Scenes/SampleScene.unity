@@ -1268,38 +1268,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _controls: {fileID: -944628639613478452, guid: f5ef6e69fc6e71a42939b822ddfcc014,
     type: 3}
-  dashAction:
+  EquipAction:
     m_Name: 
     m_Type: 0
     m_ExpectedControlType: 
-    m_Id: 875a6f89-d13e-439d-be15-d0fa041fb634
+    m_Id: 01915932-55b1-43c7-b22c-ffe2ab03d02d
     m_Processors: 
     m_Interactions: 
     m_SingletonActionBindings: []
     m_Flags: 0
-  attackAction:
-    m_Name: 
+  TestAction:
+    m_Name: Test
     m_Type: 0
     m_ExpectedControlType: 
-    m_Id: 0ff20ccb-e66c-42f7-ac92-b09573cccf8c
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
-    m_Flags: 0
-  testAction:
-    m_Name: 
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: c9785cfa-427a-4a5e-8692-44f6f5cc437a
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
-    m_Flags: 0
-  testAction2:
-    m_Name: 
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: c52a000a-3675-4d50-b6ac-3f6a3e89df4f
+    m_Id: 2ecb9f1a-48c5-4ea1-8ca8-b5bb48ee028c
     m_Processors: 
     m_Interactions: 
     m_SingletonActionBindings: []
@@ -3152,11 +3134,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 8539770461533826577, guid: aaebfa32e0e428d4f93e8b98dc7e6f69,
-        type: 3}
-      propertyPath: _testObj
-      value: 
-      objectReference: {fileID: 879675664}
     - target: {fileID: 8695165658148526612, guid: aaebfa32e0e428d4f93e8b98dc7e6f69,
         type: 3}
       propertyPath: m_LocalPosition.x

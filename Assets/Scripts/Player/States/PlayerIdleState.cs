@@ -1,7 +1,6 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class PlayerIdleState : PlayerState
+public class PlayerIdleState : PlayerMovementState
 {
     public override void EnterState(PlayerController player)
     {
@@ -14,13 +13,13 @@ public class PlayerIdleState : PlayerState
     {
         if(PlayerInputHandler.Instance.Move != Vector2.zero)
         {
-            player.ChangeState(player.MovingState);
+            player.ChangeMovementState(player.MovingState);
             return;
         }
 
-        if(PlayerInputHandler.Instance.Dash && !player.dashOnCooldown)
+        if(PlayerInputHandler.Instance.Dash && !player.IsDashOnCooldown)
         {
-            player.ChangeState(player.DashingState);
+            player.ChangeMovementState(player.DashingState);
             return;
         }
     }

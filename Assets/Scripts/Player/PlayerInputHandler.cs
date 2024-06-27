@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -10,25 +8,32 @@ public class PlayerInputHandler : MonoBehaviour
     [SerializeField] private InputActionAsset _controls;
     private InputActionMap _map;
 
-    // ===== Movement ===== //
+    // ==================== Movement ==================== //
     public Vector2 Move { get; private set; }
     public bool Sprint { get; private set; }
     public bool Dash { get; private set; }
 
-    private InputAction moveAction;
-    private InputAction sprintAction;
-    public InputAction dashAction;
+    private InputAction _moveAction;
+    private InputAction _sprintAction;
+    private InputAction _dashAction;
 
-    // ===== Mouse ===== //
+
+    // ==================== Mouse ==================== //
     public Vector2 Mouse { get; private set; }
-    private InputAction mouseAction;
+    private InputAction _mouseAction;
 
-    // ===== Attacks ===== //
-    public InputAction attackAction;
 
-    // ===== Test ===== //
-    public InputAction testAction;
-    public InputAction testAction2;
+    // ==================== Combat ==================== //
+    public bool Attack { get; private set; }
+    public bool Equip { get; private set; }
+
+    private InputAction _attackAction;
+    [HideInInspector] public InputAction EquipAction;
+
+
+    // ==================== Test ==================== //
+    [HideInInspector] public InputAction TestAction;
+
 
     private void Awake()
     {
@@ -43,32 +48,38 @@ public class PlayerInputHandler : MonoBehaviour
 
         _map = _controls.FindActionMap("Player");
 
-        moveAction = _map.FindAction("Movement");
-        sprintAction = _map.FindAction("Sprint");
-        dashAction = _map.FindAction("Dash");
+        _moveAction = _map.FindAction("Movement");
+        _sprintAction = _map.FindAction("Sprint");
+        _dashAction = _map.FindAction("Dash");
 
-        mouseAction = _map.FindAction("Mouse");
+        _mouseAction = _map.FindAction("Mouse");
 
-        attackAction = _map.FindAction("Attack");
+        _attackAction = _map.FindAction("Attack");
+        EquipAction = _map.FindAction("Equip");
 
-        testAction = _map.FindAction("TestAction");
-        testAction2 = _map.FindAction("TestAction2");
+        TestAction = _map.FindAction("TestAction");
 
         RegisterInputActions();
     }
 
     private void RegisterInputActions()
     {
-        moveAction.performed += context => Move = context.ReadValue<Vector2>();
-        moveAction.canceled += context => Move = Vector2.zero;
+        _moveAction.performed += context => Move = context.ReadValue<Vector2>();
+        _moveAction.canceled += context => Move = Vector2.zero;
 
-        sprintAction.performed += context => Sprint = context.ReadValueAsButton();
-        sprintAction.canceled += context => Sprint = context.ReadValueAsButton();
+        _sprintAction.performed += context => Sprint = context.ReadValueAsButton();
+        _sprintAction.canceled += context => Sprint = context.ReadValueAsButton();
 
-        dashAction.performed += context => Dash = context.ReadValueAsButton();
-        dashAction.canceled += context => Dash = context.ReadValueAsButton();
+        _dashAction.performed += context => Dash = context.ReadValueAsButton();
+        _dashAction.canceled += context => Dash = context.ReadValueAsButton();
 
-        mouseAction.performed += context => Mouse = context.ReadValue<Vector2>();
+        _mouseAction.performed += context => Mouse = context.ReadValue<Vector2>();
+
+        _attackAction.performed += context => Attack = context.ReadValueAsButton();
+        _attackAction.canceled += context => Attack = context.ReadValueAsButton();
+
+        EquipAction.performed += context => Equip = context.ReadValueAsButton();
+        EquipAction.canceled += context => Equip = context.ReadValueAsButton();
     }
 
     private void OnEnable() => _map.Enable();

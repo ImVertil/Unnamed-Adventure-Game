@@ -1,30 +1,29 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class PlayerDashingState : PlayerState
+public class PlayerDashingState : PlayerMovementState
 {
     public override void EnterState(PlayerController player)
     {
         Debug.Log("Entered Dashing state");
-        player.Dash();
+        player.SetAnimationTrigger(player.AnimatorDashParamId);
     }
 
     public override void UpdateState(PlayerController player)
     {
-        if (!player.GetDashingStatus())
+        if (!player.IsDashAnimPlaying)
         {
             if (PlayerInputHandler.Instance.Move == Vector2.zero)
             {
-                player.ChangeState(player.IdleState);
+                player.ChangeMovementState(player.IdleState);
             }
             else
             {
-                player.ChangeState(player.MovingState);
+                player.ChangeMovementState(player.MovingState);
             }
 
             return;
         }
 
-        player.Dash();
+        player.DashMove();
     }
 }

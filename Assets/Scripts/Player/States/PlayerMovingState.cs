@@ -1,7 +1,6 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class PlayerMovingState : PlayerState
+public class PlayerMovingState : PlayerMovementState
 {
     public override void EnterState(PlayerController player)
     {
@@ -10,18 +9,25 @@ public class PlayerMovingState : PlayerState
 
     public override void UpdateState(PlayerController player)
     {
-        if(player.GetPlayerSpeed() == 0 && PlayerInputHandler.Instance.Move == Vector2.zero)
+        if(player.CurrentSpeed == 0 && PlayerInputHandler.Instance.Move == Vector2.zero)
         {
-            player.ChangeState(player.IdleState);
+            player.ChangeMovementState(player.IdleState);
             return;
         }
 
-        if (PlayerInputHandler.Instance.Dash && !player.dashOnCooldown)
+        if (PlayerInputHandler.Instance.Dash && !player.IsDashOnCooldown)
         {
-            player.ChangeState(player.DashingState);
+            player.ChangeMovementState(player.DashingState);
             return;
         }
 
-        player.Move();
+        if (player.IsInCombat)
+        {
+            player.CombatMove();
+        }
+        else
+        {
+            player.Move();
+        }
     }
 }

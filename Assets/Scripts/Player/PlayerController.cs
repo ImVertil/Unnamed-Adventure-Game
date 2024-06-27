@@ -1,14 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(CharacterController), typeof(Animator))]
 public class PlayerController : MonoBehaviour
 {
+    // ==================== Movement ==================== //
     [Header("Movement")]
-    [SerializeField] private float _speed = 4;
+    [SerializeField] private float _speed = 4f;
     [SerializeField] private float _combatSpeed = 3f;
     [SerializeField] private float _sprintSpeed = 5.5f;
     [SerializeField] private float _dashSpeed = 6.5f;
@@ -17,75 +17,74 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float _rotationSmoothTime = 0.15f;
     [SerializeField] private CharacterController _controller;
 
-    private float _dashCooldownTime = 2f;
-    public bool dashOnCooldown { get; private set; } = false;
-    public bool isDashing { get; private set; } = false;
+    private float _dashCooldownTime = 2f; // temp
+    public bool IsDashOnCooldown { get; private set; } = false; // temp
+    public bool IsInDashingState => _currentMovementState == DashingState;
+
+    public float CurrentSpeed => _controller.velocity.magnitude;
 
     private Vector2 _inputVector;
     private Vector2 _currentVelocity;
     private Vector2 _currentMovementVector;
     private float _currentRotationVelocity;
 
+    // ==================== Animations ==================== //
     [Header("Animations")]
     [SerializeField] private Animator _animator;
-    private int _animatorSpeedParamId;
-    private int _animatorDashParamId;
-    private int _animatorPosXParamId;
-    private int _animatorPosYParamId;
+    private Dictionary<string, int> _animationTriggerMap; // temp, replace string with WeaponType enum or think of something else
+    public int AnimatorSpeedParamId { get; private set; }
+    public int AnimatorDashParamId { get; private set; }
+    public int AnimatorPosXParamId { get; private set; }
+    public int AnimatorPosYParamId { get; private set; }
 
+    public bool IsDashAnimPlaying { get; private set; }
+
+    // ==================== States ==================== //
     [Header("States")]
-    private PlayerState _currentState;
+    private PlayerMovementState _currentMovementState;
+    private PlayerCombatState _currentCombatState;
+
     public PlayerIdleState IdleState = new PlayerIdleState();
     public PlayerMovingState MovingState = new PlayerMovingState();
     public PlayerDashingState DashingState = new PlayerDashingState();
 
+    public PlayerOutOfCombatState OutOfCombatState = new PlayerOutOfCombatState();
+    public PlayerInCombatState InCombatState = new PlayerInCombatState();
+
+    public bool IsInCombat => _currentCombatState == InCombatState;
+
 
     private void Start()
     {
-        _currentState = IdleState;
-        _currentState.EnterState(this);
+        _currentMovementState = IdleState;
+        _currentMovementState.EnterState(this);
 
-        _animatorSpeedParamId = Animator.StringToHash("Speed");
-        _animatorDashParamId = Animator.StringToHash("IsDashing");
-        _animatorPosXParamId = Animator.StringToHash("PosX");
-        _animatorPosYParamId = Animator.StringToHash("PosY");
+        _currentCombatState = OutOfCombatState;
+        _currentCombatState.EnterState(this);
 
-        PlayerInputHandler.Instance.attackAction.performed += Test;
-        PlayerInputHandler.Instance.testAction.performed += Test2;
-        PlayerInputHandler.Instance.testAction2.performed += Test3;
+        AnimatorSpeedParamId = Animator.StringToHash("Speed");
+        AnimatorDashParamId = Animator.StringToHash("Dash");
+        AnimatorPosXParamId = Animator.StringToHash("PosX");
+        AnimatorPosYParamId = Animator.StringToHash("PosY");
+
+        // temp, for testing purposes
+        _animationTriggerMap = new Dictionary<string, int>
+        {
+            { "Sword", Animator.StringToHash("SwordEquip") },
+            { "Bow", Animator.StringToHash("BowEquip") }
+        };
+        PlayerInputHandler.Instance.EquipAction.performed += context => _animator.SetTrigger(_animationTriggerMap["Sword"]);
     }
-
 
     private void Update()
     {
         _inputVector = PlayerInputHandler.Instance.Move;
-        _currentState.UpdateState(this);
-    }
-
-    private void Test(InputAction.CallbackContext context)
-    {
-        Debug.Log("attack");
-        _animator.Play("MeleeAttack_OneHanded", 2);
-        //_animator.SetTrigger("Attack");
-    }
-
-    private void Test2(InputAction.CallbackContext context)
-    {
-        Debug.Log("sword equip");
-        _animator.SetTrigger("SwordEquip");
-    }
-
-    private void Test3(InputAction.CallbackContext context)
-    {
-        Debug.Log("unequip");
-        _animator.SetTrigger("Unequip");
+        _currentMovementState.UpdateState(this);
+        _currentCombatState.UpdateState(this);
     }
 
     public void Move()
     {
-        CombatMove();
-        return;
-
         if(_inputVector != Vector2.zero)
         {
             float rotationAngle = Mathf.Atan2(_inputVector.x, _inputVector.y) * Mathf.Rad2Deg;
@@ -131,15 +130,15 @@ public class PlayerController : MonoBehaviour
         Vector3 cross = Vector3.Cross(Vector3.up, lookDirection);
         float dotX = Vector3.Dot(cross, movementVector);
         float dotY = Vector3.Dot(lookDirection, movementVector);
-        _animator.SetFloat(_animatorPosXParamId, dotX);
-        _animator.SetFloat(_animatorPosYParamId, dotY);
+        _animator.SetFloat(AnimatorPosXParamId, dotX);
+        _animator.SetFloat(AnimatorPosYParamId, dotY);
     }
 
-    public void Dash()
+    public void DashMove()
     {
-        if (!GetDashingStatus() && !dashOnCooldown)
+        if (!IsInDashingState && !IsDashOnCooldown)
         {
-            StartCoroutine(HandleDash());
+            //StartCoroutine(HandleDash());
         }
 
         Vector2 dashDirection = new Vector2(transform.forward.x, transform.forward.z);
@@ -151,44 +150,50 @@ public class PlayerController : MonoBehaviour
         SetAnimatorSpeedParam(_controller.velocity.magnitude);
     }
 
-    public void ChangeState(PlayerState nextState)
+    public void Attack()
     {
-        //_currentState.ExitState(this);
+        _animator.Play("MeleeAttack_TwoHanded", 2); // purely for testing purposes
+    }
+
+    public void ChangeMovementState(PlayerMovementState nextState)
+    {
+        //_currentMovementState.ExitState(this);
         nextState.EnterState(this);
-        _currentState = nextState;
-        //_currentState.EnterState(this);
+        _currentMovementState = nextState;
+        //_currentMovementState.EnterState(this);
     }
 
-    public float GetPlayerSpeed()
+    public void ChangeCombatState(PlayerCombatState nextState)
     {
-        return _controller.velocity.magnitude;
-    }
-
-    public bool GetDashingStatus()
-    {
-        return _animator.GetBool(_animatorDashParamId);
+        //_currentCombatState.ExitState(this);
+        nextState.EnterState(this);
+        _currentCombatState = nextState;
+        //_currentCombatState.EnterState(this);
     }
 
     public void SetAnimatorSpeedParam(float val)
     {
-        _animator.SetFloat(_animatorSpeedParamId, val);
+        _animator.SetFloat(AnimatorSpeedParamId, val);
     }
 
     public void SetAnimatorPosParam(float x, float y)
     {
-        _animator.SetFloat(_animatorPosXParamId, x);
-        _animator.SetFloat(_animatorPosYParamId, y);
+        _animator.SetFloat(AnimatorPosXParamId, x);
+        _animator.SetFloat(AnimatorPosYParamId, y);
     }
 
-    private IEnumerator HandleDash()
+    public void SetAnimationTrigger(int triggerParamId)
     {
-        _animator.SetBool(_animatorDashParamId, true);
-        
-        yield return new WaitForEndOfFrame();
-        float waitTime = _animator.GetNextAnimatorStateInfo(1).length - 0.33f;
-        yield return new WaitForSeconds(waitTime);
+        _animator.SetTrigger(triggerParamId);
+    }
 
-        _animator.SetBool(_animatorDashParamId, false);
+    private IEnumerator HandleDash(AnimationEvent animationEvent)
+    {
+        IsDashAnimPlaying = true;
+        // Float parameter - the value of animation speed (it's increased to 1.33 for dash)
+        float waitTime = animationEvent.animatorClipInfo.clip.length / animationEvent.floatParameter - 0.33f;
+        yield return new WaitForSeconds(waitTime);
+        IsDashAnimPlaying = false;
 
         StartCoroutine(PutDashOnCooldown());
     }
@@ -196,8 +201,8 @@ public class PlayerController : MonoBehaviour
     // temp
     private IEnumerator PutDashOnCooldown()
     {
-        dashOnCooldown = true;
+        IsDashOnCooldown = true;
         yield return new WaitForSeconds(_dashCooldownTime);
-        dashOnCooldown = false;
+        IsDashOnCooldown = false;
     }
 }
