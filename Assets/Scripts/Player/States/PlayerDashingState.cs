@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class PlayerDashingState : PlayerMovementState
+public sealed class PlayerDashingState : PlayerMovementState
 {
     public override void EnterState(PlayerController player)
     {

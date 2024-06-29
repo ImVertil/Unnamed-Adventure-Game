@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class PlayerIdleState : PlayerMovementState
+public sealed class PlayerIdleState : PlayerMovementState
 {
     public override void EnterState(PlayerController player)
     {

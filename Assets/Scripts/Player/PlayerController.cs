@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(CharacterController), typeof(Animator))]
-public class PlayerController : MonoBehaviour
+public sealed class PlayerController : MonoBehaviour
 {
     // ==================== Movement ==================== //
     [Header("Movement")]
@@ -15,7 +15,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float _smoothTime = 0.15f;
     [SerializeField] private float _dashSmoothTime = 0f;
     [SerializeField] private float _rotationSmoothTime = 0.15f;
-    [SerializeField] private CharacterController _controller;
+    private CharacterController _controller;
 
     private float _dashCooldownTime = 2f; // temp
     public bool IsDashOnCooldown { get; private set; } = false; // temp
@@ -30,7 +30,7 @@ public class PlayerController : MonoBehaviour
 
     // ==================== Animations ==================== //
     [Header("Animations")]
-    [SerializeField] private Animator _animator;
+    private Animator _animator;
     private Dictionary<string, int> _animationTriggerMap; // temp, replace string with WeaponType enum or think of something else
     public int AnimatorSpeedParamId { get; private set; }
     public int AnimatorDashParamId { get; private set; }
@@ -38,6 +38,10 @@ public class PlayerController : MonoBehaviour
     public int AnimatorPosYParamId { get; private set; }
 
     public bool IsDashAnimPlaying { get; private set; }
+
+    [SerializeField] private AttackChain _attackChain; // temp 
+    private int _attackAnimIndex = 0;
+    public bool CanAttack = true;
 
     // ==================== States ==================== //
     [Header("States")]
@@ -56,6 +60,9 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
+        _controller = GetComponent<CharacterController>();
+        _animator = GetComponent<Animator>();
+
         _currentMovementState = IdleState;
         _currentMovementState.EnterState(this);
 
@@ -130,17 +137,12 @@ public class PlayerController : MonoBehaviour
         Vector3 cross = Vector3.Cross(Vector3.up, lookDirection);
         float dotX = Vector3.Dot(cross, movementVector);
         float dotY = Vector3.Dot(lookDirection, movementVector);
-        _animator.SetFloat(AnimatorPosXParamId, dotX);
-        _animator.SetFloat(AnimatorPosYParamId, dotY);
+
+        SetAnimatorPosParam(dotX, dotY);
     }
 
     public void DashMove()
     {
-        if (!IsInDashingState && !IsDashOnCooldown)
-        {
-            //StartCoroutine(HandleDash());
-        }
-
         Vector2 dashDirection = new Vector2(transform.forward.x, transform.forward.z);
         _currentMovementVector = Vector2.SmoothDamp(_currentMovementVector, dashDirection * _dashSpeed, ref _currentVelocity, _dashSmoothTime);
 
@@ -149,10 +151,12 @@ public class PlayerController : MonoBehaviour
 
         SetAnimatorSpeedParam(_controller.velocity.magnitude);
     }
-
     public void Attack()
     {
-        _animator.Play("MeleeAttack_TwoHanded", 2); // purely for testing purposes
+        if (!CanAttack)
+            return;
+
+        StartCoroutine(PlayAttackAnim());
     }
 
     public void ChangeMovementState(PlayerMovementState nextState)
@@ -196,6 +200,24 @@ public class PlayerController : MonoBehaviour
         IsDashAnimPlaying = false;
 
         StartCoroutine(PutDashOnCooldown());
+    }
+
+    private IEnumerator PlayAttackAnim()
+    {
+        int index = _attackAnimIndex++;
+        if (index >= _attackChain.AttacksAmount - 1)
+            _attackAnimIndex = 0;
+
+        CanAttack = false;
+        AnimationClip clip = _attackChain.AnimationClips[index];
+        _animator.Play(clip.name, 2);
+        yield return new WaitForSeconds(clip.length - _attackChain.NextAttackWindowTime[index]);
+        CanAttack = true;
+
+        yield return new WaitForSeconds(_attackChain.NextAttackWindowTime[index]);
+        // if player didn't chain another attack after fully completing the animation, set the index back to 0
+        if (CanAttack) 
+            _attackAnimIndex = 0;
     }
     
     // temp

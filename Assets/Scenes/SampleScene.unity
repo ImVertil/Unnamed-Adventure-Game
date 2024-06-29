@@ -3134,6 +3134,17 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 8539770461533826577, guid: aaebfa32e0e428d4f93e8b98dc7e6f69,
+        type: 3}
+      propertyPath: CanAttack
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8539770461533826577, guid: aaebfa32e0e428d4f93e8b98dc7e6f69,
+        type: 3}
+      propertyPath: _attackChain
+      value: 
+      objectReference: {fileID: 11400000, guid: 47c7b1d27da927f4e815bf102faea8d1,
+        type: 2}
     - target: {fileID: 8695165658148526612, guid: aaebfa32e0e428d4f93e8b98dc7e6f69,
         type: 3}
       propertyPath: m_LocalPosition.x

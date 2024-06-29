@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class PlayerInCombatState : PlayerCombatState
+public sealed class PlayerInCombatState : PlayerCombatState
 {
     public override void EnterState(PlayerController player)
     {
