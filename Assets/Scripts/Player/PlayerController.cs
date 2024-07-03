@@ -162,8 +162,7 @@ public sealed class PlayerController : MonoBehaviour
         if (!CanAttack)
             return;
 
-        for(int i=0; i<10000; i++)
-            StartCoroutine(PlayAttackAnim());
+        StartCoroutine(PlayAttackAnim());
     }
 
     public void ChangeMovementState(PlayerMovementState nextState)
