@@ -26,6 +26,8 @@ public sealed class PlayerController : MonoBehaviour
     private Vector2 _inputVector;
     private Vector2 _currentVelocity;
     private Vector2 _currentMovementVector;
+    private Vector2 _currentCombatParamVelocity;
+    private Vector2 _currentCombatParamVector;
     private float _currentRotationVelocity;
 
     // ==================== Animations ==================== //
@@ -130,13 +132,17 @@ public sealed class PlayerController : MonoBehaviour
             Debug.DrawLine(transform.position, transform.position + lookDirection, Color.red);
         }
 
-        _currentMovementVector = Vector2.SmoothDamp(_currentMovementVector, _inputVector, ref _currentVelocity, _smoothTime);
+        // Values used for movement
+        _currentMovementVector = Vector2.SmoothDamp(_currentMovementVector, _inputVector * _combatSpeed, ref _currentVelocity, _smoothTime);
         Vector3 movementVector = new Vector3(_currentMovementVector.x, 0f, _currentMovementVector.y);
-        _controller.Move(movementVector * _combatSpeed * Time.deltaTime);
+        _controller.Move(movementVector * Time.deltaTime);
 
+        // Values used for animator parameters
+        _currentCombatParamVector = Vector2.SmoothDamp(_currentCombatParamVector, _inputVector, ref _currentCombatParamVelocity, _smoothTime);
+        Vector3 combatMovementVector = new Vector3(_currentCombatParamVector.x, 0f, _currentCombatParamVector.y);
         Vector3 cross = Vector3.Cross(Vector3.up, lookDirection);
-        float dotX = Vector3.Dot(cross, movementVector);
-        float dotY = Vector3.Dot(lookDirection, movementVector);
+        float dotX = Vector3.Dot(cross, combatMovementVector);
+        float dotY = Vector3.Dot(lookDirection, combatMovementVector);
 
         SetAnimatorPosParam(dotX, dotY);
     }
@@ -156,7 +162,8 @@ public sealed class PlayerController : MonoBehaviour
         if (!CanAttack)
             return;
 
-        StartCoroutine(PlayAttackAnim());
+        for(int i=0; i<10000; i++)
+            StartCoroutine(PlayAttackAnim());
     }
 
     public void ChangeMovementState(PlayerMovementState nextState)
@@ -164,7 +171,6 @@ public sealed class PlayerController : MonoBehaviour
         //_currentMovementState.ExitState(this);
         nextState.EnterState(this);
         _currentMovementState = nextState;
-        //_currentMovementState.EnterState(this);
     }
 
     public void ChangeCombatState(PlayerCombatState nextState)
@@ -172,7 +178,6 @@ public sealed class PlayerController : MonoBehaviour
         //_currentCombatState.ExitState(this);
         nextState.EnterState(this);
         _currentCombatState = nextState;
-        //_currentCombatState.EnterState(this);
     }
 
     public void SetAnimatorSpeedParam(float val)
