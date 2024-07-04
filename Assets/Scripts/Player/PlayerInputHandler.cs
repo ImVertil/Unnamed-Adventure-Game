@@ -78,8 +78,8 @@ public sealed class PlayerInputHandler : MonoBehaviour
         _attackAction.performed += context => Attack = context.ReadValueAsButton();
         _attackAction.canceled += context => Attack = context.ReadValueAsButton();
 
-        EquipAction.performed += context => Equip = context.ReadValueAsButton();
-        EquipAction.canceled += context => Equip = context.ReadValueAsButton();
+        EquipAction.performed += context => Equip = true;
+        TestAction.performed += context => Equip = false;
     }
 
     private void OnEnable() => _map.Enable();

@@ -5,7 +5,7 @@ public sealed class PlayerDashingState : PlayerMovementState
     public override void EnterState(PlayerController player)
     {
         Debug.Log("Entered Dashing state");
-        player.SetAnimationTrigger(player.AnimatorDashParamId);
+        player.SetDashTrigger();
     }
 
     public override void UpdateState(PlayerController player)

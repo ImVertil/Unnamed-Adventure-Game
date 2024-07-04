@@ -23,6 +23,8 @@ public sealed class PlayerController : MonoBehaviour
 
     public float CurrentSpeed => _controller.velocity.magnitude;
 
+    private Vector3 _lookDirection;
+    private Vector2 _dashDirection;
     private Vector2 _inputVector;
     private Vector2 _currentVelocity;
     private Vector2 _currentMovementVector;
@@ -33,17 +35,17 @@ public sealed class PlayerController : MonoBehaviour
     // ==================== Animations ==================== //
     [Header("Animations")]
     private Animator _animator;
-    private Dictionary<string, int> _animationTriggerMap; // temp, replace string with WeaponType enum or think of something else
-    public int AnimatorSpeedParamId { get; private set; }
-    public int AnimatorDashParamId { get; private set; }
-    public int AnimatorPosXParamId { get; private set; }
-    public int AnimatorPosYParamId { get; private set; }
+    private Dictionary<WeaponType, int> _animationTriggerMap; // temp
+    private int _animatorSpeedParamId;
+    private int _animatorPosXParamId;
+    private int _animatorPosYParamId;
+    private int _animatorDashParamId;
 
     public bool IsDashAnimPlaying { get; private set; }
 
     [SerializeField] private AttackChain _attackChain; // temp 
     private int _attackAnimIndex = 0;
-    public bool CanAttack = true;
+    public bool CanAttack { get; private set; } = true;
 
     // ==================== States ==================== //
     [Header("States")]
@@ -71,18 +73,20 @@ public sealed class PlayerController : MonoBehaviour
         _currentCombatState = OutOfCombatState;
         _currentCombatState.EnterState(this);
 
-        AnimatorSpeedParamId = Animator.StringToHash("Speed");
-        AnimatorDashParamId = Animator.StringToHash("Dash");
-        AnimatorPosXParamId = Animator.StringToHash("PosX");
-        AnimatorPosYParamId = Animator.StringToHash("PosY");
+        _animatorSpeedParamId = Animator.StringToHash("Speed");
+        _animatorDashParamId = Animator.StringToHash("Dash");
+        _animatorPosXParamId = Animator.StringToHash("PosX");
+        _animatorPosYParamId = Animator.StringToHash("PosY");
 
-        // temp, for testing purposes
-        _animationTriggerMap = new Dictionary<string, int>
+        // temp
+        _animationTriggerMap = new Dictionary<WeaponType, int>
         {
-            { "Sword", Animator.StringToHash("SwordEquip") },
-            { "Bow", Animator.StringToHash("BowEquip") }
+            { WeaponType.BOW, Animator.StringToHash("BowEquip") },
+            { WeaponType.STAFF, Animator.StringToHash("StaffEquip") },
+            { WeaponType.SWORD, Animator.StringToHash("SwordEquip") }
         };
-        PlayerInputHandler.Instance.EquipAction.performed += context => _animator.SetTrigger(_animationTriggerMap["Sword"]);
+        PlayerInputHandler.Instance.EquipAction.performed += context => _animator.SetTrigger(_animationTriggerMap[WeaponType.SWORD]);
+        PlayerInputHandler.Instance.TestAction.performed += context => _animator.SetTrigger("Unequip");
     }
 
     private void Update()
@@ -92,14 +96,15 @@ public sealed class PlayerController : MonoBehaviour
         _currentCombatState.UpdateState(this);
     }
 
+    public void Idle()
+    {
+        Rotate();
+        _currentMovementVector = Vector2.zero;
+    }
+
     public void Move()
     {
-        if(_inputVector != Vector2.zero)
-        {
-            float rotationAngle = Mathf.Atan2(_inputVector.x, _inputVector.y) * Mathf.Rad2Deg;
-            float smoothAngle = Mathf.SmoothDampAngle(transform.eulerAngles.y, rotationAngle, ref _currentRotationVelocity, _rotationSmoothTime);
-            transform.rotation = Quaternion.Euler(0f, smoothAngle, 0f);
-        }
+        Rotate();
 
         if (_controller.velocity.magnitude >= _dashSpeed - 0.01f)
         {
@@ -118,45 +123,60 @@ public sealed class PlayerController : MonoBehaviour
 
     public void CombatMove()
     {
-        Ray ray = Camera.main.ScreenPointToRay(PlayerInputHandler.Instance.Mouse);
-        Plane groundPlane = new Plane(Vector3.up, new Vector3(0f, transform.position.y, 0f));
-        Vector3 lookDirection = Vector3.zero;
+        Rotate();
 
-        if (groundPlane.Raycast(ray, out float distanceToGround))
-        {
-            Vector3 targetPos = ray.GetPoint(distanceToGround);
-            lookDirection = (targetPos - transform.position).normalized;
-            float rotationAngle = Mathf.Atan2(lookDirection.x, lookDirection.z) * Mathf.Rad2Deg;
-            float smoothAngle = Mathf.SmoothDampAngle(transform.eulerAngles.y, rotationAngle, ref _currentRotationVelocity, _rotationSmoothTime);
-            transform.rotation = Quaternion.Euler(0f, smoothAngle, 0f);
-            Debug.DrawLine(transform.position, transform.position + lookDirection, Color.red);
-        }
-
-        // Values used for movement
         _currentMovementVector = Vector2.SmoothDamp(_currentMovementVector, _inputVector * _combatSpeed, ref _currentVelocity, _smoothTime);
         Vector3 movementVector = new Vector3(_currentMovementVector.x, 0f, _currentMovementVector.y);
         _controller.Move(movementVector * Time.deltaTime);
 
-        // Values used for animator parameters
         _currentCombatParamVector = Vector2.SmoothDamp(_currentCombatParamVector, _inputVector, ref _currentCombatParamVelocity, _smoothTime);
         Vector3 combatMovementVector = new Vector3(_currentCombatParamVector.x, 0f, _currentCombatParamVector.y);
-        Vector3 cross = Vector3.Cross(Vector3.up, lookDirection);
+        Vector3 cross = Vector3.Cross(Vector3.up, _lookDirection);
         float dotX = Vector3.Dot(cross, combatMovementVector);
-        float dotY = Vector3.Dot(lookDirection, combatMovementVector);
+        float dotY = Vector3.Dot(_lookDirection, combatMovementVector);
 
         SetAnimatorPosParam(dotX, dotY);
+        SetAnimatorSpeedParam(_controller.velocity.magnitude);
     }
 
     public void DashMove()
     {
-        Vector2 dashDirection = new Vector2(transform.forward.x, transform.forward.z);
-        _currentMovementVector = Vector2.SmoothDamp(_currentMovementVector, dashDirection * _dashSpeed, ref _currentVelocity, _dashSmoothTime);
+        _currentMovementVector = Vector2.SmoothDamp(_currentMovementVector, _dashDirection * _dashSpeed, ref _currentVelocity, _dashSmoothTime);
 
         Vector3 movementVector = new Vector3(_currentMovementVector.x, 0f, _currentMovementVector.y);
         _controller.Move(movementVector * Time.deltaTime);
 
         SetAnimatorSpeedParam(_controller.velocity.magnitude);
     }
+
+    public void Rotate()
+    {
+        if (IsInCombat)
+        {
+            Ray ray = Camera.main.ScreenPointToRay(PlayerInputHandler.Instance.Mouse);
+            Plane groundPlane = new Plane(Vector3.up, new Vector3(0f, transform.position.y, 0f));
+
+            if (groundPlane.Raycast(ray, out float distanceToGround))
+            {
+                Vector3 targetPos = ray.GetPoint(distanceToGround);
+                _lookDirection = (targetPos - transform.position).normalized;
+                float rotationAngle = Mathf.Atan2(_lookDirection.x, _lookDirection.z) * Mathf.Rad2Deg;
+                float smoothAngle = Mathf.SmoothDampAngle(transform.eulerAngles.y, rotationAngle, ref _currentRotationVelocity, _rotationSmoothTime);
+                transform.rotation = Quaternion.Euler(0f, smoothAngle, 0f);
+                Debug.DrawLine(transform.position, transform.position + _lookDirection, Color.red);
+            }
+        }
+        else
+        {
+            if (_inputVector != Vector2.zero)
+            {
+                float rotationAngle = Mathf.Atan2(_inputVector.x, _inputVector.y) * Mathf.Rad2Deg;
+                float smoothAngle = Mathf.SmoothDampAngle(transform.eulerAngles.y, rotationAngle, ref _currentRotationVelocity, _rotationSmoothTime);
+                transform.rotation = Quaternion.Euler(0f, smoothAngle, 0f);
+            }
+        }
+    }
+
     public void Attack()
     {
         if (!CanAttack)
@@ -181,27 +201,32 @@ public sealed class PlayerController : MonoBehaviour
 
     public void SetAnimatorSpeedParam(float val)
     {
-        _animator.SetFloat(AnimatorSpeedParamId, val);
+        _animator.SetFloat(_animatorSpeedParamId, val);
     }
 
     public void SetAnimatorPosParam(float x, float y)
     {
-        _animator.SetFloat(AnimatorPosXParamId, x);
-        _animator.SetFloat(AnimatorPosYParamId, y);
+        _animator.SetFloat(_animatorPosXParamId, x);
+        _animator.SetFloat(_animatorPosYParamId, y);
     }
 
-    public void SetAnimationTrigger(int triggerParamId)
+    public void SetDashTrigger()
     {
-        _animator.SetTrigger(triggerParamId);
+        _animator.SetTrigger(_animatorDashParamId);
     }
 
     private IEnumerator HandleDash(AnimationEvent animationEvent)
     {
+        _dashDirection = _inputVector == Vector2.zero ? new Vector2(transform.forward.x, transform.forward.z) : _inputVector;
+        float rotationAngle = Mathf.Atan2(_dashDirection.x, _dashDirection.y) * Mathf.Rad2Deg;
+        transform.rotation = Quaternion.Euler(0f, rotationAngle, 0f);
+
         IsDashAnimPlaying = true;
-        // Float parameter - the value of animation speed (it's increased to 1.33 for dash)
+        // floatParameter - the value of animation speed (it's increased to 1.33 for dash)
         float waitTime = animationEvent.animatorClipInfo.clip.length / animationEvent.floatParameter - 0.33f;
         yield return new WaitForSeconds(waitTime);
         IsDashAnimPlaying = false;
+        _dashDirection = Vector2.zero;
 
         StartCoroutine(PutDashOnCooldown());
     }
@@ -211,16 +236,16 @@ public sealed class PlayerController : MonoBehaviour
         int index = _attackAnimIndex++;
         if (index >= _attackChain.AttacksAmount - 1)
             _attackAnimIndex = 0;
+        AnimationClip clip = _attackChain.AnimationClips[index];
 
         CanAttack = false;
-        AnimationClip clip = _attackChain.AnimationClips[index];
-        _animator.Play(clip.name, 2);
+        _animator.SetTrigger("Attack");
         yield return new WaitForSeconds(clip.length - _attackChain.NextAttackWindowTime[index]);
         CanAttack = true;
-
         yield return new WaitForSeconds(_attackChain.NextAttackWindowTime[index]);
+
         // if player didn't chain another attack after fully completing the animation, set the index back to 0
-        if (CanAttack) 
+        if (CanAttack)
             _attackAnimIndex = 0;
     }
     

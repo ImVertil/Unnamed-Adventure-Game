@@ -12,7 +12,7 @@ public sealed class PlayerInCombatState : PlayerCombatState
         if (player.IsInDashingState)
             return;
 
-        if (PlayerInputHandler.Instance.Equip && false) // false is for testing purposes
+        if (!PlayerInputHandler.Instance.Equip)
         {
             player.ChangeCombatState(player.OutOfCombatState);
             return;

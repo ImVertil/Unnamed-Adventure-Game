@@ -22,5 +22,7 @@ public sealed class PlayerIdleState : PlayerMovementState
             player.ChangeMovementState(player.DashingState);
             return;
         }
+
+        player.Idle();
     }
 }

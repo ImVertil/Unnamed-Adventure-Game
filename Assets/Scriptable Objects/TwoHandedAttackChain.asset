@@ -16,5 +16,5 @@ MonoBehaviour:
   - {fileID: 7400000, guid: ab0de413a426a8a448cecfea4e5f4244, type: 2}
   - {fileID: 7400000, guid: 9671ca245230b2442b8d11271cbf586c, type: 2}
   NextAttackWindowTime:
-  - 1
-  - 0.5
+  - 0.33
+  - 0.33
