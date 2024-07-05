@@ -22,6 +22,7 @@ public sealed class PlayerController : MonoBehaviour
     public bool IsInDashingState => _currentMovementState == DashingState;
 
     public float CurrentSpeed => _controller.velocity.magnitude;
+    public float CurrentSqrSpeed => _controller.velocity.sqrMagnitude;
 
     private Vector3 _lookDirection;
     private Vector2 _dashDirection;
@@ -106,7 +107,8 @@ public sealed class PlayerController : MonoBehaviour
     {
         Rotate();
 
-        if (_controller.velocity.magnitude >= _dashSpeed - 0.01f)
+        //if (CurrentSpeed >= _dashSpeed - 0.01f)
+        if (CurrentSqrSpeed >= _dashSpeed * _dashSpeed - 0.01f)
         {
             _currentMovementVector = _inputVector * (PlayerInputHandler.Instance.Sprint ? _sprintSpeed : _speed);
         }
@@ -118,7 +120,7 @@ public sealed class PlayerController : MonoBehaviour
         Vector3 movementVector = new Vector3(_currentMovementVector.x, 0f, _currentMovementVector.y);
         _controller.Move(movementVector * Time.deltaTime);
 
-        SetAnimatorSpeedParam(_controller.velocity.magnitude);
+        SetAnimatorSpeedParam(CurrentSpeed);
     }
 
     public void CombatMove()
@@ -136,7 +138,7 @@ public sealed class PlayerController : MonoBehaviour
         float dotY = Vector3.Dot(_lookDirection, combatMovementVector);
 
         SetAnimatorPosParam(dotX, dotY);
-        SetAnimatorSpeedParam(_controller.velocity.magnitude);
+        SetAnimatorSpeedParam(CurrentSpeed);
     }
 
     public void DashMove()
@@ -146,7 +148,7 @@ public sealed class PlayerController : MonoBehaviour
         Vector3 movementVector = new Vector3(_currentMovementVector.x, 0f, _currentMovementVector.y);
         _controller.Move(movementVector * Time.deltaTime);
 
-        SetAnimatorSpeedParam(_controller.velocity.magnitude);
+        SetAnimatorSpeedParam(CurrentSpeed);
     }
 
     public void Rotate()
@@ -159,7 +161,8 @@ public sealed class PlayerController : MonoBehaviour
             if (groundPlane.Raycast(ray, out float distanceToGround))
             {
                 Vector3 targetPos = ray.GetPoint(distanceToGround);
-                _lookDirection = (targetPos - transform.position).normalized;
+                //_lookDirection = (targetPos - transform.position).normalized;
+                _lookDirection = (targetPos - transform.position) / targetPos.magnitude;
                 float rotationAngle = Mathf.Atan2(_lookDirection.x, _lookDirection.z) * Mathf.Rad2Deg;
                 float smoothAngle = Mathf.SmoothDampAngle(transform.eulerAngles.y, rotationAngle, ref _currentRotationVelocity, _rotationSmoothTime);
                 transform.rotation = Quaternion.Euler(0f, smoothAngle, 0f);

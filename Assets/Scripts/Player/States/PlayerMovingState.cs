@@ -9,7 +9,8 @@ public sealed class PlayerMovingState : PlayerMovementState
 
     public override void UpdateState(PlayerController player)
     {
-        if(player.CurrentSpeed == 0 && PlayerInputHandler.Instance.Move == Vector2.zero)
+        //if(player.CurrentSpeed == 0 && PlayerInputHandler.Instance.Move == Vector2.zero)
+        if(player.CurrentSqrSpeed == 0 && PlayerInputHandler.Instance.Move == Vector2.zero)
         {
             player.ChangeMovementState(player.IdleState);
             return;
