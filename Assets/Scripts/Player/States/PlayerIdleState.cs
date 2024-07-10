@@ -7,22 +7,30 @@ public sealed class PlayerIdleState : PlayerMovementState
         Debug.Log("Entered Idle state");
         player.SetAnimatorSpeedParam(0f);
         player.SetAnimatorPosParam(0f, 0f);
+        player.Move(Vector2.zero, 0f);
     }
 
     public override void UpdateState(PlayerController player)
     {
-        if(PlayerInputHandler.Instance.Move != Vector2.zero)
+        if (PlayerInputHandler.Instance.Move != Vector2.zero)
         {
             player.ChangeMovementState(player.MovingState);
             return;
         }
 
-        if(PlayerInputHandler.Instance.Dash && !player.IsDashOnCooldown)
+        if (PlayerInputHandler.Instance.Dash && !player.IsDashOnCooldown)
         {
             player.ChangeMovementState(player.DashingState);
             return;
         }
 
-        player.Idle();
+        if (player.IsInCombat)
+        {
+            Vector3 cursorDirection = player.GetDirectionTowardsMouseCursor();
+            Vector2 lookDirection = new Vector2(cursorDirection.x, cursorDirection.z);
+            player.Rotate(lookDirection);
+        }
+
+        //player.Idle();
     }
 }
