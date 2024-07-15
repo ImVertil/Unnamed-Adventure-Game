@@ -10,11 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0c3493be881dd594d8679790beca88aa, type: 3}
-  m_Name: TwoHandedAttackChain
+  m_Name: TwoHandedDefaultChain
   m_EditorClassIdentifier: 
-  AnimationClips:
-  - {fileID: 7400000, guid: ab0de413a426a8a448cecfea4e5f4244, type: 2}
-  - {fileID: 7400000, guid: 9671ca245230b2442b8d11271cbf586c, type: 2}
-  NextAttackWindowTime:
-  - 0.33
-  - 0.33
+  Attacks:
+  - {fileID: 11400000, guid: 66644d2b83542fb4b90ba6317f17aeea, type: 2}
+  - {fileID: 11400000, guid: f08b194244fc2c64b835ab37fed6dcaa, type: 2}

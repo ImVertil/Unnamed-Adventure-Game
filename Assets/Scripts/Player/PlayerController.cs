@@ -36,17 +36,21 @@ public sealed class PlayerController : MonoBehaviour
 
     // ==================== Animations ==================== //
     [Header("Animations")]
+    [SerializeField] private float _attackTransitionDuration = 0.25f;
     private Animator _animator;
     private Dictionary<WeaponType, int> _animationTriggerMap;
     private int _animatorSpeedParamId;
     private int _animatorPosXParamId;
     private int _animatorPosYParamId;
     private int _animatorDashParamId;
-    private int _animatorAttackTriggerId;
+    private int _animatorAttackLayerId;
 
     public bool IsDashAnimPlaying { get; private set; }
 
+    // ==================== Attacks ==================== //
+    [Header("Attacks")]
     [SerializeField] private AttackChain _attackChain; // temp 
+    private BoxCollider _attackCollider;
     private int _attackAnimIndex = 0;
     public bool CanAttack { get; private set; } = true;
 
@@ -68,6 +72,7 @@ public sealed class PlayerController : MonoBehaviour
     private void Start()
     {
         _controller = GetComponent<CharacterController>();
+        _attackCollider = GetComponent<BoxCollider>();
         _animator = GetComponent<Animator>();
 
         _currentMovementState = IdleState;
@@ -80,7 +85,7 @@ public sealed class PlayerController : MonoBehaviour
         _animatorDashParamId = Animator.StringToHash("Dash");
         _animatorPosXParamId = Animator.StringToHash("PosX");
         _animatorPosYParamId = Animator.StringToHash("PosY");
-        _animatorAttackTriggerId = Animator.StringToHash("Attack");
+        _animatorAttackLayerId = _animator.GetLayerIndex("AttackLayer");
 
         _animationTriggerMap = new Dictionary<WeaponType, int>
         {
@@ -130,7 +135,7 @@ public sealed class PlayerController : MonoBehaviour
 
     public void Attack()
     {
-        StartCoroutine(PlayAttackAnim());
+        StartCoroutine(HandleAttack());
     }
 
     public void ChangeMovementState(PlayerMovementState nextState)
@@ -156,6 +161,20 @@ public sealed class PlayerController : MonoBehaviour
     {
         _animator.SetFloat(_animatorPosXParamId, x);
         _animator.SetFloat(_animatorPosYParamId, y);
+    }
+
+    public void SetAttackCollider(float width, float height, bool isReset = false)
+    {
+        if (isReset)
+        {
+            _attackCollider.center = new Vector3(0f, _attackCollider.center.y, 0f);
+            _attackCollider.size = new Vector3(width, _attackCollider.size.y, height);
+        }
+        else
+        {
+            _attackCollider.center = new Vector3(0f, _attackCollider.center.y, height / 2);
+            _attackCollider.size = new Vector3(width, _attackCollider.size.y, height);
+        }
     }
 
     public void SetDashTrigger()
@@ -191,22 +210,25 @@ public sealed class PlayerController : MonoBehaviour
         StartCoroutine(PutDashOnCooldown());
     }
 
-    private IEnumerator PlayAttackAnim()
+    private IEnumerator HandleAttack()
     {
         int index = _attackAnimIndex++;
         if (index >= _attackChain.AttacksAmount - 1)
             _attackAnimIndex = 0;
-        AnimationClip clip = _attackChain.AnimationClips[index];
+        WeaponAttack attack = _attackChain.Attacks[index];
 
         CanAttack = false;
-        _animator.SetTrigger(_animatorAttackTriggerId);
-        yield return new WaitForSeconds(clip.length - _attackChain.NextAttackWindowTime[index]);
+        _animator.CrossFade(attack.Clip.name, _attackTransitionDuration, _animatorAttackLayerId);
+        SetAttackCollider(attack.HitWidth, attack.HitHeight);
+        yield return new WaitForSeconds(attack.Clip.length - attack.NextAttackWindowTime);
         CanAttack = true;
-        yield return new WaitForSeconds(_attackChain.NextAttackWindowTime[index]);
-
+        yield return new WaitForSeconds(attack.NextAttackWindowTime);
         // if player didn't chain another attack after fully completing the animation, set the index back to 0
         if (CanAttack)
+        {
             _attackAnimIndex = 0;
+            SetAttackCollider(1f, 1f, true);
+        }      
     }
     
     // temp
