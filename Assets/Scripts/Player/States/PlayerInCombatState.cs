@@ -21,7 +21,6 @@ public sealed class PlayerInCombatState : PlayerCombatState
         if (PlayerInputHandler.Instance.Attack && player.CanAttack)
         {
             player.Attack();
-            return;
         }
     }
 }

@@ -82,7 +82,13 @@ public sealed class PlayerInputHandler : MonoBehaviour
         TestAction.performed += context => Equip = false;
     }
 
-    private void OnEnable() => _map.Enable();
+    private void OnEnable() 
+    { 
+        _map.Enable();
+    }
 
-    private void OnDisable() => _map.Disable();
+    private void OnDisable() 
+    {
+        _map.Disable();
+    }
 }

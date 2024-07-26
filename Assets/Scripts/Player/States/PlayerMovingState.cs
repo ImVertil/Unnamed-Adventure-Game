@@ -2,7 +2,6 @@
 
 public sealed class PlayerMovingState : PlayerMovementState
 {
-    private Vector2 _inputVector => PlayerInputHandler.Instance.Move;
     private Vector2 _currentCombatParamVector;
     private Vector2 _currentCombatParamVelocity;
 

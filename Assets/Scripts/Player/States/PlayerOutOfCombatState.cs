@@ -15,7 +15,6 @@ public sealed class PlayerOutOfCombatState : PlayerCombatState
         if (PlayerInputHandler.Instance.Equip)
         {
             player.ChangeCombatState(player.InCombatState);
-            return;
         }
     }
 }

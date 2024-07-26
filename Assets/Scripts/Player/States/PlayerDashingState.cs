@@ -2,7 +2,6 @@
 
 public sealed class PlayerDashingState : PlayerMovementState
 {
-    private Vector2 _inputVector => PlayerInputHandler.Instance.Move;
     private Vector2 _dashDirection;
 
     public override void EnterState(PlayerController player)
