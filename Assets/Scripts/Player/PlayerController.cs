@@ -39,11 +39,11 @@ public sealed class PlayerController : MonoBehaviour
     [SerializeField] private float _attackTransitionDuration = 0.25f;
     private Animator _animator;
     private Dictionary<WeaponType, int> _animationTriggerMap;
-    private int _animatorSpeedParamId;
-    private int _animatorPosXParamId;
-    private int _animatorPosYParamId;
-    private int _animatorDashParamId;
-    private int _animatorAttackLayerId;
+    private int _animatorSpeedParamId = Animator.StringToHash("Speed");
+    private int _animatorPosXParamId = Animator.StringToHash("PosX");
+    private int _animatorPosYParamId = Animator.StringToHash("PosY");
+    private int _animatorDashParamId = Animator.StringToHash("Dash");
+    private int _animatorAttackLayerId = _animator.GetLayerIndex("AttackLayer");
 
     public bool IsDashAnimPlaying { get; private set; }
 
@@ -80,13 +80,7 @@ public sealed class PlayerController : MonoBehaviour
 
         _currentCombatState = OutOfCombatState;
         _currentCombatState.EnterState(this);
-
-        _animatorSpeedParamId = Animator.StringToHash("Speed");
-        _animatorDashParamId = Animator.StringToHash("Dash");
-        _animatorPosXParamId = Animator.StringToHash("PosX");
-        _animatorPosYParamId = Animator.StringToHash("PosY");
-        _animatorAttackLayerId = _animator.GetLayerIndex("AttackLayer");
-
+        
         _animationTriggerMap = new Dictionary<WeaponType, int>
         {
             { WeaponType.BOW, Animator.StringToHash("BowEquip") },
