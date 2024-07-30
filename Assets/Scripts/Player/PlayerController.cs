@@ -43,7 +43,7 @@ public sealed class PlayerController : MonoBehaviour
     private int _animatorPosXParamId = Animator.StringToHash("PosX");
     private int _animatorPosYParamId = Animator.StringToHash("PosY");
     private int _animatorDashParamId = Animator.StringToHash("Dash");
-    private int _animatorAttackLayerId = _animator.GetLayerIndex("AttackLayer");
+    private int _animatorAttackLayerId;
 
     public bool IsDashAnimPlaying { get; private set; }
 
@@ -80,6 +80,8 @@ public sealed class PlayerController : MonoBehaviour
 
         _currentCombatState = OutOfCombatState;
         _currentCombatState.EnterState(this);
+
+        _animatorAttackLayerId = _animator.GetLayerIndex("AttackLayer");
         
         _animationTriggerMap = new Dictionary<WeaponType, int>
         {
