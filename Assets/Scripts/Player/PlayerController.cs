@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -8,13 +9,34 @@ public sealed class PlayerController : MonoBehaviour
 {
     // ==================== Movement ==================== //
     [Header("Movement")]
-    [SerializeField] private float _speed = 4f;
-    [SerializeField] private float _combatSpeed = 3f;
-    [SerializeField] private float _sprintSpeed = 5.5f;
-    [SerializeField] private float _dashSpeed = 6.5f;
-    [SerializeField] private float _smoothTime = 0.15f;
-    [SerializeField] private float _dashSmoothTime = 0f;
-    [SerializeField] private float _rotationSmoothTime = 0.15f;
+    [Min(0)]
+    [SerializeField]
+    private float _speed = 4f;
+
+    [Min(0)]
+    [SerializeField] 
+    private float _combatSpeed = 3f;
+
+    [Min(0)]
+    [SerializeField] 
+    private float _sprintSpeed = 5.5f;
+
+    [Min(0)]
+    [SerializeField] 
+    private float _dashSpeed = 6.5f;
+
+    [Min(0)]
+    [SerializeField]
+    private float _smoothTime = 0.15f;
+
+    [Min(0)]
+    [SerializeField]
+    private float _dashSmoothTime = 0f;
+
+    [Min(0)]
+    [SerializeField] 
+    private float _rotationSmoothTime = 0.15f;
+
     private CharacterController _controller;
 
     public float Speed => _speed;
@@ -161,16 +183,8 @@ public sealed class PlayerController : MonoBehaviour
 
     public void SetAttackCollider(float width, float height, bool isReset = false)
     {
-        if (isReset)
-        {
-            _attackCollider.center = new Vector3(0f, _attackCollider.center.y, 0f);
-            _attackCollider.size = new Vector3(width, _attackCollider.size.y, height);
-        }
-        else
-        {
-            _attackCollider.center = new Vector3(0f, _attackCollider.center.y, height / 2);
-            _attackCollider.size = new Vector3(width, _attackCollider.size.y, height);
-        }
+        _attackCollider.center = new Vector3(0f, _attackCollider.center.y, isReset ? 0f : height / 2);
+        _attackCollider.size = new Vector3(width, _attackCollider.size.y, height);
     }
 
     public void SetDashTrigger()
@@ -226,7 +240,29 @@ public sealed class PlayerController : MonoBehaviour
             SetAttackCollider(1f, 1f, true);
         }      
     }
-    
+
+#region TEMPORARY/TESTING
+    private bool testbool = false;
+    public void DrawSpellIndicator()
+    {
+        if (testbool)
+            return;
+
+        testbool = true;
+        StartCoroutine(DrawIndicator());
+    }
+
+    private IEnumerator DrawIndicator()
+    {
+        while(!Input.GetKeyDown(KeyCode.J))
+        {
+            Debug.DrawLine(transform.position, transform.position + GetDirectionTowardsMouseCursor() * 5, Color.blue);
+            yield return new WaitForNextFrameUnit();
+        }
+        testbool = false;
+        yield return null;
+    }
+
     // temp
     private IEnumerator PutDashOnCooldown()
     {
@@ -234,4 +270,5 @@ public sealed class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(_dashCooldownTime);
         IsDashOnCooldown = false;
     }
+#endregion
 }
