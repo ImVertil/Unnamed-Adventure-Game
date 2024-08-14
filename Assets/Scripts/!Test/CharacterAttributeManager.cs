@@ -59,21 +59,22 @@ public class CharacterAttributeManager : MonoBehaviour
         foreach (EffectModifier modifier in effect.Modifiers)
         {
             Attribute attribute = Attributes.GetAttribute(modifier.AttributeType);
-            float newValue = 0f;
+            float newVal = 0f;
             switch (modifier.ValueOperator)
             {
                 case ValueOperator.Add:
-                    newValue = attribute.BaseValue + modifier.Value;
+                    newVal = attribute.BaseValue + modifier.Value;
                     break;
                 case ValueOperator.Multiply:
-                    newValue = attribute.BaseValue * (1f + (modifier.Value - 1f));
+                    newVal = attribute.BaseValue * (1f + (modifier.Value - 1f));
                     break;
                 case ValueOperator.Divide:
-                    newValue = attribute.BaseValue / (1f + (modifier.Value - 1f));
+                    newVal = attribute.BaseValue / (1f + (modifier.Value - 1f));
                     break;
             }
-            Attributes.OnPreAttributeChange(attribute, ref newValue);
-            attribute.BaseValue = newValue;
+            Attributes.OnPreAttributeChange(attribute, ref newVal);
+            Debug.Log($"[{gameObject.name} BASE] {modifier.AttributeType} {attribute.BaseValue} -> {newVal}");
+            attribute.BaseValue = newVal;
             Attributes.OnPostAttributeChange(attribute);
         }
     }
@@ -103,12 +104,11 @@ public class CharacterAttributeManager : MonoBehaviour
             float Add = SumMods(attribute.ActiveModifiers, ValueOperator.Add, 0f);
             float Multiply = SumMods(attribute.ActiveModifiers, ValueOperator.Multiply, 1f);
             float Divide = SumMods(attribute.ActiveModifiers, ValueOperator.Divide, 1f);
-            Debug.Log($"Add {Add} | Multiply {Multiply} | Divide {Divide}");
             newVal = (attribute.BaseValue + Add) * Multiply / Divide;
         }
 
         Attributes.OnPreAttributeChange(attribute, ref newVal);
-        Debug.Log($"[{gameObject.name}] {attrType} {attribute.CurrentValue} -> {newVal}");
+        Debug.Log($"[{gameObject.name} CURRENT] {attrType} {attribute.CurrentValue} -> {newVal}");
         attribute.CurrentValue = newVal;
         Attributes.OnPostAttributeChange(attribute);
     }
