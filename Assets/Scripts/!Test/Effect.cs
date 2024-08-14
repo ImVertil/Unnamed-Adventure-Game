@@ -22,7 +22,7 @@ public class Effect : ScriptableObject
         HashSet<AttributeType> attributes = new();
         foreach (EffectModifier mod in Modifiers)
         {
-            attributes.Add(mod.Attribute);
+            attributes.Add(mod.AttributeType);
         }
 
         return attributes;

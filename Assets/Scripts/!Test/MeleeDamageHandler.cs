@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class MeleeDamageHandler : DamageHandler
 {
+    // TODO: rewrite, lots of unnecessary stuff
     [SerializeField] private Effect _effect;
     private BoxCollider _attackCollider;
     private CharacterAttributes _playerStats;
@@ -11,8 +12,7 @@ public class MeleeDamageHandler : DamageHandler
     
     private void Start()
     {
-        _attackCollider = GetComponent<BoxCollider>();
-        //_playerStats = GetComponent<CharacterAttributes>();
+
     }
 
     private void Update() // test

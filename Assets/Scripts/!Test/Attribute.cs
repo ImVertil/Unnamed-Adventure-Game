@@ -1,8 +1,10 @@
-﻿public class Attribute
+﻿using System.Collections.Generic;
+
+public class Attribute
 {
     public float BaseValue;
     public float CurrentValue;
-    //public List<EffectModifier> Modifiers { get; private set; } = new();
+    public List<EffectModifier> ActiveModifiers { get; private set; } = new();
 
     public Attribute(float baseValue)
     {
