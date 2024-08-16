@@ -9,14 +9,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d00ac0a8c99f5af49bee068186443b8f, type: 3}
-  m_Name: ArmorShredEffect
+  m_Script: {fileID: 11500000, guid: 83d5633d8313bae41ae26e4bd3d7bfd4, type: 3}
+  m_Name: DefAttr_TestEnemy
   m_EditorClassIdentifier: 
-  Duration: 5
-  TickTime: 0
-  Type: 0
-  ExecutionCalculatorName: ExecutionCalculator
-  Modifiers:
-  - AttributeType: 8
-    ValueOperator: 0
-    Value: -10
+  MaxHealth: 100
+  MaxMana: 100
+  MaxStamina: 100
+  PhysicalAttack: 10
+  MagicAttack: 5
+  Armor: 50
+  MagicArmor: 5

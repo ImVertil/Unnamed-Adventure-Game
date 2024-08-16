@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-public class Attribute
+public sealed class Attribute
 {
     public float BaseValue;
     public float CurrentValue;

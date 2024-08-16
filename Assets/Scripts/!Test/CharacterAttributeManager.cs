@@ -1,5 +1,4 @@
 ﻿using Character.Effects;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -25,14 +24,18 @@ public class CharacterAttributeManager : MonoBehaviour
         if (effect == null)
             return;
 
-        if (effect.Duration != 0f)
+        if (effect.Duration > 0f)
         {
             ActiveEffects.Add(effect);
             foreach (EffectModifier modifier in effect.Modifiers)
             {
                 Attributes.GetAttribute(modifier.AttributeType).ActiveModifiers.Add(modifier);
             }
-            RecalculateValue(effect.GetAffectedAttributes());
+
+            if (effect.TickTime == 0f)
+            {
+                RecalculateValue(effect.AffectedAttributes);
+            }
         }
 
         StartCoroutine(EffectExecution(effect));
@@ -43,14 +46,18 @@ public class CharacterAttributeManager : MonoBehaviour
         if (effect == null)
             return;
 
-        if (effect.Duration != 0f)
+        if (effect.Duration > 0f)
         {
             ActiveEffects.Remove(effect);
             foreach (EffectModifier modifier in effect.Modifiers)
             {
                 Attributes.GetAttribute(modifier.AttributeType).ActiveModifiers.Remove(modifier);
             }
-            RecalculateValue(effect.GetAffectedAttributes());
+
+            if (effect.TickTime == 0f)
+            {
+                RecalculateValue(effect.AffectedAttributes);
+            }
         }
     }
 
@@ -130,7 +137,13 @@ public class CharacterAttributeManager : MonoBehaviour
 
     private IEnumerator EffectExecution(Effect effect)
     {
-        if (effect.TickTime == 0f && effect.Duration != 0f)
+        if (effect.Duration == 0f)
+        {
+            RecalculateBaseValue(effect);
+            yield break;
+        }
+
+        if (effect.TickTime == 0f)
         {
             yield return new WaitForSeconds(effect.Duration);
         }
@@ -139,9 +152,9 @@ public class CharacterAttributeManager : MonoBehaviour
             float timePassed = 0f;
             while (timePassed <= effect.Duration)
             {
+                timePassed += effect.TickTime;
                 RecalculateBaseValue(effect);
                 yield return new WaitForSeconds(effect.TickTime);
-                timePassed += Time.deltaTime;
             }
         }
 

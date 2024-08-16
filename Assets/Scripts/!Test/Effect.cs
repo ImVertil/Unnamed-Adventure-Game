@@ -1,34 +1,36 @@
-﻿using UnityEngine;
-using Character.Effects;
-using System;
-using System.Reflection;
+﻿using Character.Effects;
 using System.Collections.Generic;
-using System.Collections;
-using Events.AbilitySystem;
+using UnityEngine;
 
 [CreateAssetMenu(fileName = "New Effect", menuName = "Effect/New Effect")]
-public class Effect : ScriptableObject
+public sealed class Effect : ScriptableObject
 {
     public float Duration = 0f;
+    [Min(0f)]
     public float TickTime = 0f;
     public EffectType Type;
-    public string ExecutionCalculatorName = "ExecutionCalculator";
     public List<EffectModifier> Modifiers;
-    public Action<Effect> OnEffectEnd;
-    private ExecutionCalculator _executionCalculator;
+    [SerializeField] private ExecutionCalculator _executionCalculator;
 
-    public HashSet<AttributeType> GetAffectedAttributes()
+    private HashSet<AttributeType> _affectedAttributes;
+    public HashSet<AttributeType> AffectedAttributes
     {
-        HashSet<AttributeType> attributes = new();
-        foreach (EffectModifier mod in Modifiers)
+        get
         {
-            attributes.Add(mod.AttributeType);
-        }
+            if (_affectedAttributes != null)
+                return _affectedAttributes;
 
-        return attributes;
+            _affectedAttributes = new();
+            foreach (EffectModifier mod in Modifiers)
+            {
+                _affectedAttributes.Add(mod.AttributeType);
+            }
+
+            return _affectedAttributes;
+        }
     }
 
-    private void SetDamageCalculator()
+    /*private void SetDamageCalculator()
     {
         Type t = Assembly.GetExecutingAssembly().GetType(ExecutionCalculatorName);
         _executionCalculator = Activator.CreateInstance(t) as ExecutionCalculator;
@@ -38,5 +40,5 @@ public class Effect : ScriptableObject
             t = Assembly.GetExecutingAssembly().GetType("ExecutionCalculator");
             _executionCalculator = Activator.CreateInstance(t) as ExecutionCalculator;
         }
-    }
+    }*/
 }

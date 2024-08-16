@@ -9,13 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 83d5633d8313bae41ae26e4bd3d7bfd4, type: 3}
-  m_Name: TestEnemyDefaultStats
+  m_Script: {fileID: 11500000, guid: ab197dc3f0fc8b546bfdf9b8fb04fffb, type: 3}
+  m_Name: A2_TwoHanded
   m_EditorClassIdentifier: 
-  MaxHealth: 100
-  MaxMana: 100
-  MaxStamina: 100
-  PhysicalAttack: 10
-  MagicAttack: 5
-  Armor: 50
-  MagicArmor: 5
+  Clip: {fileID: 7400000, guid: 9671ca245230b2442b8d11271cbf586c, type: 2}
+  NextAttackWindowTime: 0.5
+  HitWidth: 1
+  HitHeight: 2
