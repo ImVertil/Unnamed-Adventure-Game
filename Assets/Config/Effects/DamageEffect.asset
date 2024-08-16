@@ -15,8 +15,8 @@ MonoBehaviour:
   Duration: 0
   TickTime: 0
   Type: 0
-  ExecutionCalculatorName: ExecutionCalculator
   Modifiers:
-  - Attribute: 0
+  - AttributeType: 0
     ValueOperator: 0
     Value: -10
+  _executionCalculator: {fileID: 0}
