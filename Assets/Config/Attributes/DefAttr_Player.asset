@@ -9,9 +9,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0c3493be881dd594d8679790beca88aa, type: 3}
-  m_Name: TwoHandedDefaultChain
+  m_Script: {fileID: 11500000, guid: 83d5633d8313bae41ae26e4bd3d7bfd4, type: 3}
+  m_Name: DefAttr_Player
   m_EditorClassIdentifier: 
-  Attacks:
-  - {fileID: 11400000, guid: 66644d2b83542fb4b90ba6317f17aeea, type: 2}
-  - {fileID: 11400000, guid: f08b194244fc2c64b835ab37fed6dcaa, type: 2}
+  MaxHealth: 100
+  MaxMana: 100
+  MaxStamina: 100
+  PhysicalAttack: 10
+  MagicAttack: 5
+  Armor: 5
+  MagicArmor: 5

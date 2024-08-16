@@ -9,10 +9,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ab197dc3f0fc8b546bfdf9b8fb04fffb, type: 3}
-  m_Name: TwoHandedNormal_1
+  m_Script: {fileID: 11500000, guid: d00ac0a8c99f5af49bee068186443b8f, type: 3}
+  m_Name: ArmorShredEffect
   m_EditorClassIdentifier: 
-  Clip: {fileID: 7400000, guid: ab0de413a426a8a448cecfea4e5f4244, type: 2}
-  NextAttackWindowTime: 0.5
-  HitWidth: 2
-  HitHeight: 1
+  Duration: 5
+  TickTime: 0
+  Type: 0
+  Modifiers:
+  - AttributeType: 8
+    ValueOperator: 0
+    Value: -10
+  _executionCalculator: {fileID: 0}
