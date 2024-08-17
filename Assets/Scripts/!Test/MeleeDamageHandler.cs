@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using UnityEngine;
 
 public class MeleeDamageHandler : DamageHandler
@@ -7,12 +8,12 @@ public class MeleeDamageHandler : DamageHandler
     // TODO: rewrite, lots of unnecessary stuff
     [SerializeField] private Effect _effect;
     private BoxCollider _attackCollider;
-    private CharacterAttributes _playerStats;
+    private CharacterAttributeManager _source;
     private HashSet<GameObject> _enemies = new();
     
     private void Start()
     {
-
+        _source = GetComponent<CharacterAttributeManager>();
     }
 
     private void Update() // test
@@ -49,7 +50,11 @@ public class MeleeDamageHandler : DamageHandler
             CharacterAttributeManager targetAttributeManager = enemy.GetComponent<CharacterAttributeManager>();
             if (targetAttributeManager != null)
             {
-                targetAttributeManager.ApplyEffect(_effect);
+                EffectData data = new();
+                data.Source = _source.Attributes;
+                data.Target = targetAttributeManager.Attributes;
+                data.Effect = _effect;
+                targetAttributeManager.ApplyEffect(data);
             }
         }
     }

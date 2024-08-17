@@ -19,64 +19,64 @@ public class CharacterAttributeManager : MonoBehaviour
         Attributes = new(_defaultAttribtues);
     }
 
-    public void ApplyEffect(Effect effect)
+    public void ApplyEffect(EffectData data)
     {
-        if (effect == null)
+        if (data.Effect == null)
             return;
 
-        if (effect.Duration > 0f)
+        if (data.Effect.Duration > 0f)
         {
-            ActiveEffects.Add(effect);
-            foreach (EffectModifier modifier in effect.Modifiers)
+            ActiveEffects.Add(data.Effect);
+            foreach (EffectModifier modifier in data.Effect.Modifiers)
             {
                 Attributes.GetAttribute(modifier.AttributeType).ActiveModifiers.Add(modifier);
             }
 
-            if (effect.TickTime == 0f)
+            if (data.Effect.TickTime == 0f)
             {
-                RecalculateValue(effect.AffectedAttributes);
+                RecalculateValue(data);
             }
         }
 
-        StartCoroutine(EffectExecution(effect));
+        StartCoroutine(EffectExecution(data));
     }
 
-    public void RemoveEffect(Effect effect)
+    public void RemoveEffect(EffectData data)
     {
-        if (effect == null)
+        if (data.Effect == null)
             return;
 
-        if (effect.Duration > 0f)
+        if (data.Effect.Duration > 0f)
         {
-            ActiveEffects.Remove(effect);
-            foreach (EffectModifier modifier in effect.Modifiers)
+            ActiveEffects.Remove(data.Effect);
+            foreach (EffectModifier modifier in data.Effect.Modifiers)
             {
                 Attributes.GetAttribute(modifier.AttributeType).ActiveModifiers.Remove(modifier);
             }
 
-            if (effect.TickTime == 0f)
+            if (data.Effect.TickTime == 0f)
             {
-                RecalculateValue(effect.AffectedAttributes);
+                RecalculateValue(data);
             }
         }
     }
 
-    private void RecalculateBaseValue(Effect effect)
+    private void RecalculateBaseValue(EffectData data)
     {
-        foreach (EffectModifier modifier in effect.Modifiers)
+        foreach (EffectModifier modifier in data.Effect.Modifiers)
         {
             Attribute attribute = Attributes.GetAttribute(modifier.AttributeType);
             float newVal = 0f;
             switch (modifier.ValueOperator)
             {
                 case ValueOperator.Add:
-                    newVal = attribute.BaseValue + modifier.Value;
+                    newVal = attribute.BaseValue + modifier.GetValue(data.Source, data.Target);
                     break;
                 case ValueOperator.Multiply:
-                    newVal = attribute.BaseValue * (1f + (modifier.Value - 1f));
+                    newVal = attribute.BaseValue * (1f + (modifier.GetValue(data.Source, data.Target) - 1f));
                     break;
                 case ValueOperator.Divide:
-                    newVal = attribute.BaseValue / (1f + (modifier.Value - 1f));
+                    newVal = attribute.BaseValue / (1f + (modifier.GetValue(data.Source, data.Target) - 1f));
                     break;
             }
             Attributes.OnPreAttributeChange(attribute, ref newVal);
@@ -86,38 +86,48 @@ public class CharacterAttributeManager : MonoBehaviour
         }
     }
 
-    private void RecalculateValue(HashSet<AttributeType> attrTypes)
+    private void RecalculateValue(EffectData data)
     {
-        foreach (AttributeType attrType in attrTypes)
+        foreach (AttributeType attrType in data.Effect.AffectedAttributes)
         {
-            RecalculateValue(attrType);
+            Attribute attribute = Attributes.GetAttribute(attrType);
+            if (attribute == null)
+                return;
+
+            float newVal = 0f;
+
+            if (attribute.ActiveModifiers.Count == 0)
+            {
+                newVal = attribute.BaseValue;
+            }
+            else
+            {
+                float Add = SumMods(attribute.ActiveModifiers, data, ValueOperator.Add, 0f);
+                float Multiply = SumMods(attribute.ActiveModifiers, data, ValueOperator.Multiply, 1f);
+                float Divide = SumMods(attribute.ActiveModifiers, data, ValueOperator.Divide, 1f);
+                newVal = (attribute.BaseValue + Add) * Multiply / Divide;
+            }
+
+            Attributes.OnPreAttributeChange(attribute, ref newVal);
+            Debug.Log($"[{gameObject.name} CURRENT] {attrType} {attribute.CurrentValue} -> {newVal}");
+            attribute.CurrentValue = newVal;
+            Attributes.OnPostAttributeChange(attribute);
         }
     }
 
-    private void RecalculateValue(AttributeType attrType)
+    private float SumMods(List<EffectModifier> modifiers, EffectData data, ValueOperator type, float bias)
     {
-        Attribute attribute = Attributes.GetAttribute(attrType);
-        if (attribute == null)
-            return;
+        float result = bias;
 
-        float newVal = 0f;
-
-        if (attribute.ActiveModifiers.Count == 0)
+        foreach (EffectModifier modifier in modifiers)
         {
-            newVal = attribute.BaseValue;
-        }
-        else
-        {
-            float Add = SumMods(attribute.ActiveModifiers, ValueOperator.Add, 0f);
-            float Multiply = SumMods(attribute.ActiveModifiers, ValueOperator.Multiply, 1f);
-            float Divide = SumMods(attribute.ActiveModifiers, ValueOperator.Divide, 1f);
-            newVal = (attribute.BaseValue + Add) * Multiply / Divide;
+            if (modifier.ValueOperator == type)
+            {
+                result += modifier.GetValue(data.Source, data.Target) - bias;
+            }
         }
 
-        Attributes.OnPreAttributeChange(attribute, ref newVal);
-        Debug.Log($"[{gameObject.name} CURRENT] {attrType} {attribute.CurrentValue} -> {newVal}");
-        attribute.CurrentValue = newVal;
-        Attributes.OnPostAttributeChange(attribute);
+        return result;
     }
 
     private float SumMods(List<EffectModifier> modifiers, ValueOperator type, float bias)
@@ -135,29 +145,29 @@ public class CharacterAttributeManager : MonoBehaviour
         return result;
     }
 
-    private IEnumerator EffectExecution(Effect effect)
+    private IEnumerator EffectExecution(EffectData data)
     {
-        if (effect.Duration == 0f)
+        if (data.Effect.Duration == 0f)
         {
-            RecalculateBaseValue(effect);
+            RecalculateBaseValue(data);
             yield break;
         }
 
-        if (effect.TickTime == 0f)
+        if (data.Effect.TickTime == 0f)
         {
-            yield return new WaitForSeconds(effect.Duration);
+            yield return new WaitForSeconds(data.Effect.Duration);
         }
         else
         {
             float timePassed = 0f;
-            while (timePassed <= effect.Duration)
+            while (timePassed <= data.Effect.Duration)
             {
-                timePassed += effect.TickTime;
-                RecalculateBaseValue(effect);
-                yield return new WaitForSeconds(effect.TickTime);
+                timePassed += data.Effect.TickTime;
+                RecalculateBaseValue(data);
+                yield return new WaitForSeconds(data.Effect.TickTime);
             }
         }
 
-        RemoveEffect(effect);
+        RemoveEffect(data);
     }
 }
