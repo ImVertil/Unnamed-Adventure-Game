@@ -71,7 +71,7 @@ public sealed class PlayerController : MonoBehaviour
 
     // ==================== Attacks ==================== //
     [Header("Attacks")]
-    [SerializeField] private AttackChain _attackChain; // temp 
+    [SerializeField] private PlayerAttackChain _attackChain; // temp 
     private BoxCollider _attackCollider;
     private int _attackAnimIndex = 0;
     public bool CanAttack { get; private set; } = true;
@@ -225,7 +225,7 @@ public sealed class PlayerController : MonoBehaviour
         int index = _attackAnimIndex++;
         if (index >= _attackChain.AttacksAmount - 1)
             _attackAnimIndex = 0;
-        WeaponAttack attack = _attackChain.Attacks[index];
+        PlayerWeaponAttack attack = _attackChain.Attacks[index];
 
         CanAttack = false;
         _animator.CrossFade(attack.Clip.name, _attackTransitionDuration, _animatorAttackLayerId);
