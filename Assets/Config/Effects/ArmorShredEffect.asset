@@ -16,7 +16,8 @@ MonoBehaviour:
   TickTime: 0
   Type: 0
   Modifiers:
-  - AttributeType: 8
+  - _executionCalculator: {fileID: 0}
+    AttributeType: 8
     ValueOperator: 0
     Value: -10
   _executionCalculator: {fileID: 0}
