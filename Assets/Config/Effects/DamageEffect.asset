@@ -16,7 +16,9 @@ MonoBehaviour:
   TickTime: 0
   Type: 0
   Modifiers:
-  - AttributeType: 0
+  - _executionCalculator: {fileID: 11400000, guid: 6a1ccf41362e7a142a5f02926616a498,
+      type: 2}
+    AttributeType: 0
     ValueOperator: 0
     Value: -10
   _executionCalculator: {fileID: 0}

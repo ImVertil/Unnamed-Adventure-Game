@@ -1,7 +1,4 @@
 using Character.Effects;
-using Events.AbilitySystem;
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
@@ -22,8 +19,7 @@ public class CharacterAttributes
     public Attribute Armor { get; private set; }
     public Attribute MagicArmor { get; private set; }
 
-    private PropertyInfo[] _properties;
-    private Dictionary<AttributeType, Attribute> _attributeMap;
+    private readonly Dictionary<AttributeType, Attribute> _attributeMap;
 
     public CharacterAttributes(DefaultAttributes attributes)
     {
@@ -38,7 +34,6 @@ public class CharacterAttributes
         Armor = new Attribute(attributes.Armor);
         MagicArmor = new Attribute(attributes.MagicArmor);
 
-        _properties = GetType().GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public);
         _attributeMap = new()
         {
             { AttributeType.Health, Health },
@@ -52,19 +47,6 @@ public class CharacterAttributes
             { AttributeType.Armor, Armor },
             { AttributeType.MagicArmor, MagicArmor },
         };
-    }
-
-    public Attribute GetAttribute(string attributeName)
-    {
-        //PropertyInfo property = GetType().GetProperty(attributeName, BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public);
-        Attribute attribute = null;
-        foreach (PropertyInfo property in _properties)
-        {
-            if (property.Name == attributeName)
-                attribute = property.GetValue(this) as Attribute;
-        }
-
-        return attribute;
     }
 
     public Attribute GetAttribute(AttributeType attributeType)
