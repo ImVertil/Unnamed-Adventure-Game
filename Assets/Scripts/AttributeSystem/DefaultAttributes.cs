@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "DefaultAttributes", menuName = "Attributes/New Default Attributes")]
-public class DefaultAttributes : ScriptableObject
+public sealed class DefaultAttributes : ScriptableObject
 {
     public float MaxHealth;
     public float MaxMana;

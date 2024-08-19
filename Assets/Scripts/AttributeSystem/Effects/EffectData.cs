@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using UnityEngine;
-
-public struct EffectData
+﻿public struct EffectData
 {
     public CharacterAttributes Source;
     public CharacterAttributes Target;

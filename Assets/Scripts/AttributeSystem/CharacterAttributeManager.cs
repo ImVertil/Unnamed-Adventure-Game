@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CharacterAttributeManager : MonoBehaviour
+public sealed class CharacterAttributeManager : MonoBehaviour
 {
     [SerializeField] private DefaultAttributes _defaultAttribtues;
     public CharacterAttributes Attributes { get; private set; }
@@ -13,7 +13,8 @@ public class CharacterAttributeManager : MonoBehaviour
     {
         if (_defaultAttribtues == null)
         {
-            Debug.LogError("DefaultAttributes not set");
+            Debug.LogError($"({gameObject.name}) DefaultAttributes not set");
+            return;
         }
 
         Attributes = new(_defaultAttribtues);
@@ -94,7 +95,7 @@ public class CharacterAttributeManager : MonoBehaviour
             if (attribute == null)
                 return;
 
-            float newVal = 0f;
+            float newVal;
 
             if (attribute.ActiveModifiers.Count == 0)
             {
@@ -124,21 +125,6 @@ public class CharacterAttributeManager : MonoBehaviour
             if (modifier.ValueOperator == type)
             {
                 result += modifier.GetValue(data.Source, data.Target) - bias;
-            }
-        }
-
-        return result;
-    }
-
-    private float SumMods(List<EffectModifier> modifiers, ValueOperator type, float bias)
-    {
-        float result = bias;
-
-        foreach (EffectModifier modifier in modifiers)
-        {
-            if (modifier.ValueOperator == type)
-            {
-                result += modifier.Value - bias;
             }
         }
 

@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "Weapon Attack", menuName = "Player/New Weapon Attack")]
-public class PlayerWeaponAttack : ScriptableObject
+public sealed class PlayerWeaponAttack : ScriptableObject
 {
     public AnimationClip Clip;
     [Range(0f, 1f)]

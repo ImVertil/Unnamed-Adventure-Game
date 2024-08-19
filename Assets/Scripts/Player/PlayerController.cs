@@ -61,10 +61,10 @@ public sealed class PlayerController : MonoBehaviour
     [SerializeField] private float _attackTransitionDuration = 0.25f;
     private Animator _animator;
     private Dictionary<WeaponType, int> _animationTriggerMap;
-    private int _animatorSpeedParamId = Animator.StringToHash("Speed");
-    private int _animatorPosXParamId = Animator.StringToHash("PosX");
-    private int _animatorPosYParamId = Animator.StringToHash("PosY");
-    private int _animatorDashParamId = Animator.StringToHash("Dash");
+    private readonly int _animatorSpeedParamId = Animator.StringToHash("Speed");
+    private readonly int _animatorPosXParamId = Animator.StringToHash("PosX");
+    private readonly int _animatorPosYParamId = Animator.StringToHash("PosY");
+    private readonly int _animatorDashParamId = Animator.StringToHash("Dash");
     private int _animatorAttackLayerId;
 
     public bool IsDashAnimPlaying { get; private set; }
@@ -81,12 +81,12 @@ public sealed class PlayerController : MonoBehaviour
     private PlayerMovementState _currentMovementState;
     private PlayerCombatState _currentCombatState;
 
-    public PlayerIdleState IdleState = new PlayerIdleState();
-    public PlayerMovingState MovingState = new PlayerMovingState();
-    public PlayerDashingState DashingState = new PlayerDashingState();
+    public PlayerIdleState IdleState = new();
+    public PlayerMovingState MovingState = new();
+    public PlayerDashingState DashingState = new();
 
-    public PlayerOutOfCombatState OutOfCombatState = new PlayerOutOfCombatState();
-    public PlayerInCombatState InCombatState = new PlayerInCombatState();
+    public PlayerOutOfCombatState OutOfCombatState = new();
+    public PlayerInCombatState InCombatState = new();
 
     public bool IsInCombat => _currentCombatState == InCombatState;
 
@@ -138,7 +138,7 @@ public sealed class PlayerController : MonoBehaviour
             _currentMovementVector = Vector2.SmoothDamp(_currentMovementVector, direction * speed, ref _currentVelocity, _smoothTime);
         }
 
-        Vector3 movementVector = new Vector3(_currentMovementVector.x, 0f, _currentMovementVector.y);
+        Vector3 movementVector = new(_currentMovementVector.x, 0f, _currentMovementVector.y);
         _controller.Move(movementVector * Time.deltaTime);
 
         SetAnimatorSpeedParam(CurrentSpeed);
@@ -195,7 +195,7 @@ public sealed class PlayerController : MonoBehaviour
     public Vector3 GetDirectionTowardsMouseCursor()
     {
         Ray ray = Camera.main.ScreenPointToRay(PlayerInputHandler.Instance.Mouse);
-        Plane groundPlane = new Plane(Vector3.up, new Vector3(0f, transform.position.y, 0f));
+        Plane groundPlane = new(Vector3.up, new Vector3(0f, transform.position.y, 0f));
         Vector3 lookDirection = Vector3.zero;
 
         if (groundPlane.Raycast(ray, out float distanceToGround))
