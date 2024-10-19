@@ -9,8 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f0d7e771723bb5640a564c21b07419a6, type: 3}
-  m_Name: New Test Calculator
+  m_Script: {fileID: 11500000, guid: 7aba0ba6a1eb6ad489631b3feb31b4ad, type: 3}
+  m_Name: Physical Damage Calculator
   m_EditorClassIdentifier: 
-  data: 1
-  test: xd

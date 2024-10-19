@@ -17,5 +17,5 @@ MonoBehaviour:
   MaxStamina: 100
   PhysicalAttack: 10
   MagicAttack: 5
-  Armor: 25
+  Armor: 63
   MagicArmor: 5

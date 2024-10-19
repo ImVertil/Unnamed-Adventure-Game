@@ -5,11 +5,9 @@ using UnityEngine;
 
 public class MeleeDamageHandler : DamageHandler
 {
-    // TODO: rewrite, lots of unnecessary stuff
     [SerializeField] private Effect _effect;
-    private BoxCollider _attackCollider;
     private CharacterAttributeManager _source;
-    private HashSet<GameObject> _enemies = new();
+    private readonly HashSet<GameObject> _enemies = new();
     
     private void Start()
     {
@@ -47,13 +45,14 @@ public class MeleeDamageHandler : DamageHandler
         HashSet<GameObject> localEnemies = new(_enemies);
         foreach (GameObject enemy in localEnemies)
         {
-            CharacterAttributeManager targetAttributeManager = enemy.GetComponent<CharacterAttributeManager>();
-            if (targetAttributeManager != null)
+            if (enemy.TryGetComponent(out CharacterAttributeManager targetAttributeManager))
             {
-                EffectData data = new();
-                data.Source = _source.Attributes;
-                data.Target = targetAttributeManager.Attributes;
-                data.Effect = _effect;
+                EffectData data = new()
+                {
+                    Source = _source.Attributes,
+                    Target = targetAttributeManager.Attributes,
+                    Effect = _effect
+                };
                 targetAttributeManager.ApplyEffect(data);
             }
         }

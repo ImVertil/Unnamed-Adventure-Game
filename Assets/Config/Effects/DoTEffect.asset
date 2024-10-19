@@ -10,14 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d00ac0a8c99f5af49bee068186443b8f, type: 3}
-  m_Name: DamageEffect
+  m_Name: DoTEffect
   m_EditorClassIdentifier: 
-  Duration: 0
-  TickTime: 0
+  Duration: 2
+  TickTime: 0.3
   Type: 0
   Modifiers:
-  - _executionCalculator: {fileID: 11400000, guid: d431151bb86e9ba439c454519a3dbe6e,
-      type: 2}
+  - _executionCalculator: {fileID: 0}
     AttributeType: 0
     ValueOperator: 0
-    Value: -10
+    Value: -2

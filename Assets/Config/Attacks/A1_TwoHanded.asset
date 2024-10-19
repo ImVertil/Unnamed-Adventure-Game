@@ -15,4 +15,4 @@ MonoBehaviour:
   Clip: {fileID: 7400000, guid: ab0de413a426a8a448cecfea4e5f4244, type: 2}
   NextAttackWindowTime: 0.5
   HitWidth: 2
-  HitHeight: 1
+  HitHeight: 2
