@@ -1,4 +1,6 @@
 using Character.Effects;
+using Events.AbilitySystem;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
@@ -7,18 +9,18 @@ public class CharacterAttributes
 {
     public Attribute Health { get; private set; }
     public Attribute MaxHealth { get; private set; }
-
     public Attribute Mana { get; private set; }
     public Attribute MaxMana { get; private set; }
-
     public Attribute Stamina { get; private set; }
     public Attribute MaxStamina { get; private set; }
-
     public Attribute PhysicalAttack { get; private set; }
     public Attribute MagicAttack { get; private set; }
     public Attribute Armor { get; private set; }
     public Attribute MagicArmor { get; private set; }
 
+    public Action<float> OnHealthChanged;
+    public Action<float> OnArmorChanged;
+    
     private readonly Dictionary<AttributeType, Attribute> _attributeMap;
 
     public CharacterAttributes(DefaultAttributes attributes)
@@ -81,7 +83,7 @@ public class CharacterAttributes
     {
         if (attribute == Health)
         {
-            
+            OnHealthChanged?.Invoke(attribute.BaseValue);
         }
 
         if (attribute == Mana)
@@ -92,6 +94,11 @@ public class CharacterAttributes
         if (attribute == Stamina)
         {
             
+        }
+
+        if (attribute == Armor)
+        {
+            OnArmorChanged?.Invoke(attribute.CurrentValue);
         }
     }
 }
