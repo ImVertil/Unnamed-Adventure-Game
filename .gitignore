@@ -75,7 +75,9 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 
 # Game assets
-/[Aa]ssets/[Bb]link/*
+/[Aa]ssets/Blink/*
 /[Aa]ssets/Blink.meta
 /[Aa]ssets/ExplosiveLLC/*
 /[Aa]ssets/ExplosiveLLC.meta
+/[Aa]ssets/TextMesh Pro/*
+/[Aa]ssets/TextMesh Pro.meta
